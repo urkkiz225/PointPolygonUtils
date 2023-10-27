@@ -34,7 +34,7 @@ public class MainLoop extends Init{
     public static void Render(){
         synchronized(g) {
             for(Polygon polygon:PolygonHolder.shapes){
-                g.setColor(Color.orange);
+                g.setColor(Color.blue);
                 g.fillPolygon(polygon);
             }
             g.fillRect(500, (int) MathOperations.Clamp((float) (0 + (9.81*(TimeManager.MasterTime*TimeManager.MasterTime))), 0, 420), 50, 50);
