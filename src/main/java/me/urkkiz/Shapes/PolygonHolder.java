@@ -13,6 +13,7 @@ public class PolygonHolder {
     public static void CompilePolygons(){
         //do not modify finalpolygons
         FinalPolygons=shapes;
+        System.out.println(FinalPolygons.size()+", "+shapes.size());
         System.out.println(Arrays.toString(shapes.get(0).xpoints)+", "+Arrays.toString(shapes.get(0).ypoints)+", "+shapes.get(0).npoints);
     }
 }

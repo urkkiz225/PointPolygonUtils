@@ -1,5 +1,7 @@
 package me.urkkiz.util;
 
+import java.util.ArrayList;
+
 public class MathOperations {
     public static float Clamp(float val, float min, float max) {
         return Math.max(min, Math.min(max, val));
@@ -7,4 +9,6 @@ public class MathOperations {
     public static float RadiansToAngles(float Radians){
         return (float) (Radians*(180/Math.PI));
     }
+    public static ArrayList<float[]>[] AccurateCumulativeFloatOverFlows=new ArrayList[3];
+    //index 0 : position | index 1 : rotation | index 2 : scale
 }

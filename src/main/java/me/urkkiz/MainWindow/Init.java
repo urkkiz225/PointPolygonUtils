@@ -39,7 +39,9 @@ public class Init {
         frame.repaint();
 
         PolygonHolder.PushPolygon(new int[]{150,100,100,150},new int[]{200,200,250,250},4);
+        PolygonHolder.PushPolygon(new int[]{250,200,200,250},new int[]{300,300,250,250},4);
         PolygonHolder.CompilePolygons();
+        MainLoop.g=(Graphics2D)DrawPanel.getGraphics();
         MainLoop.Loop();
     }
 }

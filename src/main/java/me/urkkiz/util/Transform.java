@@ -11,23 +11,24 @@ import java.util.Arrays;
 
 public class Transform {
     public static void MovePolygon(Polygon polygon, float x, float y){
-        int[][] coordinates=new int[][]{polygon.xpoints, polygon.ypoints};/*
+        int[][] coordinates=new int[][]{polygon.xpoints, polygon.ypoints};
+        // \/- obsolete - JFrame has a translate() method for moving objects. (works none the less)
+        /*
         for(int i = 0; i < polygon.npoints; i++) {
             coordinates[0][i] += (int) ((coordinates[0][i]+x)-coordinates[0][i]);
             coordinates[1][i] += (int) ((coordinates[1][i]+y)-coordinates[1][i]);
             //coordinates[1][i]= coordinates[1][i]+Math.round((coordinates[1][i]+y)-coordinates[1][i]);
         }
-        */
+         */
         polygon.translate((int) ((PhysicsLoop.CalculateCenterOfGravity(polygon)[0] +x)-PhysicsLoop.CalculateCenterOfGravity(polygon)[0]),(int) (PhysicsLoop.CalculateCenterOfGravity(polygon)[1]+y)-PhysicsLoop.CalculateCenterOfGravity(polygon)[1]);
     }
-    public static void RotatePolygon(Polygon polygon, float Angles, int[] pivot){
-        for(int i = 0; i < polygon.npoints; i++) {
-            System.out.println((int)(Math.round(((pivot[0]-PolygonHolder.FinalPolygons.get(0).xpoints[i])*Math.cos(Math.toDegrees(Angles))-((pivot[1]-PolygonHolder.FinalPolygons.get(0).ypoints[i])*Math.sin(Math.toDegrees(Math.toDegrees(Angles))))))+pivot[0]) +", " + ((int)Math.round((pivot[1]-PolygonHolder.FinalPolygons.get(0).ypoints[i])*Math.cos(Math.toDegrees(Angles))+(pivot[0]-PolygonHolder.FinalPolygons.get(0).ypoints[i])*Math.sin(Math.toDegrees(Angles)))+pivot[1]));
+    public static void RotatePolygon(int PolygonIndex, float Angles, int[] pivot){
+        for(int i = 0; i < PolygonHolder.shapes.get(PolygonIndex).npoints; i++) {
             //PolygonHolder.shapes.get(0).xpoints[i]=(int)(Math.round(((pivot[0]-PolygonHolder.FinalPolygons.get(0).xpoints[i])*Math.cos(Angles)-((pivot[1]-PolygonHolder.FinalPolygons.get(0).ypoints[i])*Math.sin(Angles))))+pivot[0]);
             double x = ((((PolygonHolder.FinalPolygons.get(0).xpoints[i]-pivot[0])*Math.cos(Angles))-(((PolygonHolder.FinalPolygons.get(0).ypoints[i]-pivot[1])*Math.sin(Angles)))))+pivot[0];
             double y = (((((PolygonHolder.FinalPolygons.get(0).ypoints[i]-pivot[1])*Math.cos(Angles))+(((PolygonHolder.FinalPolygons.get(0).xpoints[i]-pivot[0])*Math.sin(Angles))))))+pivot[1];
-            PolygonHolder.shapes.get(0).xpoints[i]=(int)x;
-            PolygonHolder.shapes.get(0).ypoints[i]=(int)y;
+            PolygonHolder.shapes.get(0).xpoints[i]=(int)Math.round(x);
+            PolygonHolder.shapes.get(0).ypoints[i]=(int)Math.round(y);
         }
     }
     public static void ScalePolygon(Polygon polygon, float x, float y, int[] pivot){
