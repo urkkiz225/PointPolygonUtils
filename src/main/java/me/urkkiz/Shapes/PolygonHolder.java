@@ -16,4 +16,6 @@ public class PolygonHolder {
         System.out.println(FinalPolygons.size()+", "+shapes.size());
         System.out.println(Arrays.toString(shapes.get(0).xpoints)+", "+Arrays.toString(shapes.get(0).ypoints)+", "+shapes.get(0).npoints);
     }
+    public static ArrayList<int[]> TempPolygon=new ArrayList<>();
+
 }

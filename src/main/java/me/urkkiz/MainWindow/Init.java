@@ -2,27 +2,42 @@ package me.urkkiz.MainWindow;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+
+import me.urkkiz.Actions.WindowRuntime;
 import me.urkkiz.Shapes.*;
 
-public class Init {
+public class Init extends JFrame{
     public static float t=0;
-    static JFrame frame = new JFrame();
-    static Canvas DrawPanel=new Canvas();
-    static JLabel label = new JLabel("that scouts a spy!");
+    public static JFrame frame = new JFrame();
+    public static Canvas DrawPanel=new Canvas();
+    public static JLabel label = new JLabel("that scouts a spy!");
+
+    public static JLabel GeneralInfo = new JLabel("Entered polygon creation mode");
+
     private static CustomPolygon customShape;
+
+    public static MouseListener ML;
 
 
     public static void main(String[] args){
         InitWindow();
     }
     public static void InitWindow(){
+        DrawPanel.addKeyListener(WindowRuntime.listener);
+        GeneralInfo.setBounds(frame.getWidth(),frame.getHeight(),600,100);
+        GeneralInfo.setFont(new Font(null, Font.PLAIN,24));
+        GeneralInfo.setLocation(1280-600, 340);
+        GeneralInfo.setOpaque(true);
         label.setBounds(frame.getWidth(),frame.getHeight(),300,100);
         label.setFont(new Font(null,Font.BOLD,25));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setTitle("physics simulator epic");
         frame.setSize(1280,480);
-        frame.add(label);
         DrawPanel.setSize(1280,480);
+        frame.add(GeneralInfo);
+        frame.add(label);
         frame.add(DrawPanel);
         frame.setLayout(null);
         frame.setVisible(true);
@@ -38,10 +53,39 @@ public class Init {
         //PolygonHolder.PushPolygon(new int[]{160,200,150,300},new int[]{0,0,150,300},4);
         frame.repaint();
 
-        PolygonHolder.PushPolygon(new int[]{150,100,100,150},new int[]{200,200,250,250},4);
-        PolygonHolder.PushPolygon(new int[]{250,200,200,250},new int[]{300,300,250,250},4);
-        PolygonHolder.CompilePolygons();
+    //    PolygonHolder.PushPolygon(new int[]{150,100,100,150},new int[]{200,200,250,250},4);
+  //      PolygonHolder.PushPolygon(new int[]{250,200,200,250},new int[]{300,300,250,250},4);
+//        PolygonHolder.CompilePolygons();
         MainLoop.g=(Graphics2D)DrawPanel.getGraphics();
         MainLoop.Loop();
+        ML=new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                if(GeneralInfo.isVisible())PolygonHolder.TempPolygon.add(new int[]{e.getX(), e.getY()});
+                System.out.println(e.getX()+", "+ e.getY());
+            }
+
+            @Override
+            public void mousePressed(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+
+            }
+        };
+        DrawPanel.addMouseListener(ML);
     }
+
 }
