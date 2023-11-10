@@ -2,6 +2,7 @@ package me.urkkiz.Actions;
 
 import me.urkkiz.MainWindow.Init;
 import me.urkkiz.MainWindow.MainLoop;
+import me.urkkiz.Physics.PhysicsLoop;
 
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -28,14 +29,15 @@ public class WindowRuntime{
 
         @Override
         public void keyPressed(KeyEvent e) {
-            System.out.println("bruh!!1");
             Random random =new Random();
+            if(e.getKeyCode()==KeyEvent.VK_RIGHT) PhysicsLoop.Angles=0.05f;
+            if(e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Angles=-0.05f;
             if (e.getKeyCode()==KeyEvent.VK_G) GeneralInformation(!Init.GeneralInfo.isVisible(), Init.GeneralInfo.getText()+random.nextInt(4,61));
         }
 
         @Override
         public void keyReleased(KeyEvent e) {
-
+            if(e.getKeyCode()==KeyEvent.VK_RIGHT||e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Angles=0.0f;
         }
     };
 }

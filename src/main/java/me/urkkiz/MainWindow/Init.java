@@ -4,9 +4,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import me.urkkiz.Actions.WindowRuntime;
+import me.urkkiz.Physics.PhysicsLoop;
 import me.urkkiz.Shapes.*;
+import me.urkkiz.util.MathOperations;
+import me.urkkiz.util.TimeManager;
 
 public class Init extends JFrame{
     public static float t=0;
@@ -19,6 +24,8 @@ public class Init extends JFrame{
     private static CustomPolygon customShape;
 
     public static MouseListener ML;
+
+    public static boolean IsMouseDown=false;
 
 
     public static void main(String[] args){
@@ -53,16 +60,34 @@ public class Init extends JFrame{
         //PolygonHolder.PushPolygon(new int[]{160,200,150,300},new int[]{0,0,150,300},4);
         frame.repaint();
 
-    //    PolygonHolder.PushPolygon(new int[]{150,100,100,150},new int[]{200,200,250,250},4);
+          //PolygonHolder.PushPolygon(new int[]{150,100,100,150},new int[]{200,200,250,250},4);
   //      PolygonHolder.PushPolygon(new int[]{250,200,200,250},new int[]{300,300,250,250},4);
 //        PolygonHolder.CompilePolygons();
         MainLoop.g=(Graphics2D)DrawPanel.getGraphics();
+        //PolygonHolder.CompilePolygons();
         MainLoop.Loop();
         ML=new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
+                if(PolygonHolder.shapes.size()!=0)PhysicsLoop.CheckCollision(new int[]{e.getX(),e.getY()},PolygonHolder.shapes.get(0));
+                IsMouseDown=true;
                 if(GeneralInfo.isVisible())PolygonHolder.TempPolygon.add(new int[]{e.getX(), e.getY()});
                 System.out.println(e.getX()+", "+ e.getY());
+                if(!GeneralInfo.isVisible()){
+                    int[] PrevPosition = new int[]{e.getX(), e.getY()};
+                    //MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x;
+                    for (int i = 0; i < PolygonHolder.shapes.size(); i++) {
+                        if ((PhysicsLoop.CalculateCenterOfGravity(PolygonHolder.shapes.get(i))[0] - e.getX() < PolygonHolder.Bounds.get(i)[0] * 0.5f)
+                                && (PhysicsLoop.CalculateCenterOfGravity(PolygonHolder.shapes.get(i))[1] - e.getY() < PolygonHolder.Bounds.get(i)[1] * 0.5f)) {
+                            System.out.println("ASTYDGH!J");
+                            for (int j = 0; j < PolygonHolder.shapes.get(i).npoints; j++) {
+                                PolygonHolder.shapes.get(i).xpoints[j] += (e.getX() - PrevPosition[0]);
+                                PolygonHolder.shapes.get(i).ypoints[j] += (e.getY() - PrevPosition[1]);
+                                PrevPosition = new int[]{e.getX(), e.getY()};
+                            }
+                        }
+                    }
+                }
             }
 
             @Override
@@ -72,7 +97,7 @@ public class Init extends JFrame{
 
             @Override
             public void mouseReleased(MouseEvent e) {
-
+                IsMouseDown=false;
             }
 
             @Override
@@ -87,5 +112,4 @@ public class Init extends JFrame{
         };
         DrawPanel.addMouseListener(ML);
     }
-
 }
