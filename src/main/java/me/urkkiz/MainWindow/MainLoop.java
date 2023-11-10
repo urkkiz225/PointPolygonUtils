@@ -47,6 +47,7 @@ public class MainLoop extends Init {
             g.fill(polygon);
         }
         //drawing of polygon editing
+        //
         if (Init.GeneralInfo.isVisible()) {
             g.draw(new Rectangle2D.Float(MouseInfo.getPointerInfo().getLocation().x - frame.getLocationOnScreen().x - 5, MouseInfo.getPointerInfo().getLocation().y - frame.getLocationOnScreen().y - 5, 10, 10));
             if (PolygonHolder.TempPolygon.size() != 0) {
