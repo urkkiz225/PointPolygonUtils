@@ -11,6 +11,7 @@ import me.urkkiz.Actions.WindowRuntime;
 import me.urkkiz.Physics.PhysicsLoop;
 import me.urkkiz.Shapes.*;
 import me.urkkiz.util.MathOperations;
+import me.urkkiz.util.StringUtil;
 import me.urkkiz.util.TimeManager;
 
 public class Init extends JFrame{
@@ -71,15 +72,14 @@ public class Init extends JFrame{
             public void mouseClicked(MouseEvent e) {
                 if(PolygonHolder.shapes.size()!=0)PhysicsLoop.CheckCollision(new int[]{e.getX(),e.getY()},PolygonHolder.shapes.get(0));
                 IsMouseDown=true;
-                if(GeneralInfo.isVisible())PolygonHolder.TempPolygon.add(new int[]{e.getX(), e.getY()});
-                System.out.println(e.getX()+", "+ e.getY());
+                if(GeneralInfo.isVisible()){
+                    PolygonHolder.TempPolygon.add(new int[]{e.getX(), e.getY()});
+                }
                 if(!GeneralInfo.isVisible()){
                     int[] PrevPosition = new int[]{e.getX(), e.getY()};
-                    //MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x;
                     for (int i = 0; i < PolygonHolder.shapes.size(); i++) {
                         if ((PhysicsLoop.CalculateCenterOfGravity(PolygonHolder.shapes.get(i))[0] - e.getX() < PolygonHolder.Bounds.get(i)[0] * 0.5f)
                                 && (PhysicsLoop.CalculateCenterOfGravity(PolygonHolder.shapes.get(i))[1] - e.getY() < PolygonHolder.Bounds.get(i)[1] * 0.5f)) {
-                            System.out.println("ASTYDGH!J");
                             for (int j = 0; j < PolygonHolder.shapes.get(i).npoints; j++) {
                                 PolygonHolder.shapes.get(i).xpoints[j] += (e.getX() - PrevPosition[0]);
                                 PolygonHolder.shapes.get(i).ypoints[j] += (e.getY() - PrevPosition[1]);

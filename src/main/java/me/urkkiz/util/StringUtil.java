@@ -3,10 +3,11 @@ package me.urkkiz.util;
 import java.util.Scanner;
 
 public class StringUtil {
-    private static Scanner scanner = new Scanner(System.in);
+    public static Scanner scanner = new Scanner(System.in);
 
     public static String UserLineInput() {
-        return UserLineInput().length() != 0 ? scanner.nextLine() : "0";
+        String input=scanner.nextLine();
+        return input.length() != 0 ? input : "0";
     }
 
     public static String UserCharInput() {

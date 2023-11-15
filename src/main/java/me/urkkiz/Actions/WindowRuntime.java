@@ -1,5 +1,6 @@
 package me.urkkiz.Actions;
 
+import com.sun.tools.javac.Main;
 import me.urkkiz.MainWindow.Init;
 import me.urkkiz.MainWindow.MainLoop;
 import me.urkkiz.Physics.PhysicsLoop;
@@ -29,10 +30,19 @@ public class WindowRuntime{
 
         @Override
         public void keyPressed(KeyEvent e) {
+            //cases r prolly better
             Random random =new Random();
             if(e.getKeyCode()==KeyEvent.VK_RIGHT) PhysicsLoop.Angles=0.05f;
             if(e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Angles=-0.05f;
             if (e.getKeyCode()==KeyEvent.VK_G) GeneralInformation(!Init.GeneralInfo.isVisible(), Init.GeneralInfo.getText()+random.nextInt(4,61));
+            if(e.getKeyCode()==KeyEvent.VK_P) {
+                try {
+                    MainLoop.EnableDebug();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            }
+
         }
 
         @Override

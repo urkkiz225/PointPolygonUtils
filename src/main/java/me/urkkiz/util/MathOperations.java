@@ -14,8 +14,6 @@ public class MathOperations {
     public static float RadiansToAngles(float Radians){
         return (float) (Radians*(180/Math.PI));
     }
-    public static ArrayList<float[]> AccurateCumulativeFloatOverFlows[]=new ArrayList[3];
-    //index 0 : position | index 1 : rotation | index 2 : scale
     public static void CompileBounds(){
         for (Polygon polygon: PolygonHolder.shapes) {
             int[] MDist=new int[2];
@@ -25,11 +23,10 @@ public class MathOperations {
                 if(polygon.ypoints[i]-Center[1]>MDist[1])MDist[1]=polygon.ypoints[i]-(int)Center[1];
             }
             PolygonHolder.Bounds.add(MDist);
-            System.out.println(Arrays.toString(MDist));
         }
 
     }
-    public static float FindClosestValue(float target, ArrayList<Float> vals){
+    public static float FindClosestValue(float target, float[] vals){
         float closest=0;
         for (float val : vals) {
             if(Math.abs(val-target)<closest) closest=val;
@@ -37,7 +34,7 @@ public class MathOperations {
         return closest;
     }
     //next two can be also completed as a one-liner with the method above, these is just for clarity
-    public static float[] ClosestTwo(float target, ArrayList<Float> vals){
+    public static float[] ClosestTwo(float target, float[] vals){
         float closestFirstIter=FindClosestValue(target, vals);
         //ArrayList<Float> valsu=new ArrayList<Float>(vals.remove(closestFirstIter));
         //return new float[]{closestFirstIter, FindClosestValue(target, vals.remove(closestFirstIter))};
@@ -48,5 +45,46 @@ public class MathOperations {
         for (int[] val: vals){
             //if(closest[][])
         }
+    }
+    public static float LengthFloat(float[] vector){
+        //for a 2-dimensional vector, higher dimensions aren't needed in the program. floating-point accuracy is enough.
+        return (float)(Math.sqrt(vector[0]*vector[0]+vector[1]+vector[1]));
+    }
+    public static float LengthInt(int[] vector){
+        //for a 2-dimensional vector, higher dimensions aren't needed in the program. floating-point accuracy is enough.
+        // everyday i sorrow; for java does not support array casting.
+        return (float)(Math.sqrt(vector[0]*vector[0]+vector[1]+vector[1]));
+    }
+    public static float VectorDotProduct(float[] v1, float[] v2){
+        return v1[0]*v2[0]+v1[1]+v2[1]; //ultrakill reference
+    }
+    public static float AngleBetweenVector(float[] v1, float[] v2){
+        return (float) Math.cos((VectorDotProduct(v1, v2)/LengthFloat(v1)*LengthFloat(v2)));
+    }
+    public static float CrossProduct(float[] v1, float[] v2){
+        return (float) (LengthFloat(v1)*LengthFloat(v2)*Math.sin(AngleBetweenVector(v1,v2)));
+    }
+    public static int SmallestIntegerInArray(int[] arr){
+        int smallest=Integer.MAX_VALUE;
+        for (int i:arr) {
+            if (i<smallest) smallest=i;
+        }
+        return smallest;
+    }
+    public static int[] ConcatIntArray(int[]... Arrays){
+        //this is pretty bad code, but couldn't find any way to do it better since i want the array type to be primitive (no arraylists)
+        int arrLength=0;
+        for (int[] arr:Arrays) {
+            arrLength+=arr.length;
+        }
+        int[] res=new int[arrLength];
+        int i=0;
+        for (int[] arr:Arrays) {
+            for (int j:arr) {
+                res[i]=j;
+                i++;
+            }
+        }
+        return res;
     }
 }
