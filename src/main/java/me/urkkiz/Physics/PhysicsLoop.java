@@ -30,7 +30,6 @@ public class PhysicsLoop {
         return (MathOperations.Clamp((0 + (GravitationalConstant*(TimeManager.Timers.get(TimerIndex)*TimeManager.Timers.get(TimerIndex)))), 0, 420));
     }
     public static float[] CalculateCenterOfGravity(Polygon polygon){
-
         float[] res=new float[2];
         //average of points
         for (int i = 0; i < polygon.npoints; i++) {
@@ -50,17 +49,8 @@ public class PhysicsLoop {
         }
         return new float[]{res[0] / arr[0].length, res[1] / arr[0].length};
     }
-    public static void CheckCollision(int[] point, Polygon TargetPolygon){
-        //
-        if(PolygonHolder.shapes.size()!=0) {
-            for (int i = 0; i < TargetPolygon.npoints - 1; i++) {
-                if (((point[0] < TargetPolygon.xpoints[i] && point[0] > TargetPolygon.xpoints[i + 1]) || (point[0] > TargetPolygon.xpoints[i] && point[0] < TargetPolygon.xpoints[i + 1]))
-                        && ((point[0] < TargetPolygon.ypoints[i] && point[1] > TargetPolygon.ypoints[i + 1]) || (point[1] > TargetPolygon.ypoints[i] && point[1] < TargetPolygon.ypoints[i + 1]))) {
-                    System.out.println("bruh!");
-                }
-            }
-        }
-    }
+
+    //a day later, i do not dare to question the gears of the following function; it is a miracle it works in the first place, and miracles are not to be tampered with.
     public static void IsPolygonConcave(Polygon polygon) {
         boolean isPolygonConcave=false;
         ArrayList<Integer[]> ConcaveEdgePoints = new ArrayList<>();
@@ -108,14 +98,14 @@ public class PhysicsLoop {
     }
     /*
     the algorithm used in this program to check collisions between convex polygons is called Separating Axes Theorem. If you have two convex polygons,
-    their collision state can be determined by their projected "shadows" when rotated to line with the x and y-axis respectively.
+    their collision state can be determined by the overlap of their projected "shadows" when rotated to line with the x and y-axis respectively.
      */
     public static boolean CollisionCheckConvex(Polygon p1, Polygon p2) {
         return !(SeperatingAxisCheck(p1, p2) && SeperatingAxisCheck(p2, p1));
     }
     private static boolean SeperatingAxisCheck(Polygon p1, Polygon p2) {
         for (int i = 0; i < p1.npoints; i++) {
-            //using infinities here instead of double.MAX_VALUE for mathematical clarity. their memory performance is the same. (due to hexadecimal format, infinity = 7FF0000000000000)
+            //using infinities here instead of double.MAX_VALUE for mathematical clarity, their memory performance is the same. (due to hexadecimal format, infinity = 7FF0000000000000)
             double[] projectionBounds = new double[]{Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, Double.NEGATIVE_INFINITY};
             int[] axes=new int[]{p1.ypoints[i]-p1.ypoints[(i + 1) % p1.npoints], p1.xpoints[(i + 1) % p1.npoints]-p1.xpoints[i]};
             // Project all vertices of p2 onto the axis
@@ -136,6 +126,38 @@ public class PhysicsLoop {
             }
         }
         return false;
+    }
+    public static boolean CollisionCheckConcave(Polygon p1, Polygon p2){
+        //also works for convex polygons, but why would you want to do that? this collision detection algorithm is much more resource-intensive.
+        for (int i = 0; i < 2; i++) {
+            for (int j = 0; j < p1.npoints; j++) {
+                if(CheckIfPointIsInsidePolygon(new int[]{p1.xpoints[j], p1.ypoints[j]},p2)) return true;
+            }
+            Polygon temp = p1;
+            p1=p2;
+            p2=temp;
+        }
+        return false;
+        /*
+        the problem with this algorithm is, for example, if you have two very long triangles perpendicular to each other
+        intersecting each other at their visual center, this will not detect a collision, since none of the points of either polygons are inside the other polygon.
+         */
+    }
+    /*
+    this next method for checking if a point is inside a polygon is called winding number algorithm aka nonzero-rule algorithm
+    how it works is if the winding number which is calculated here is more than zero, it means that the point is inside the polygon.
+    the sign of a winding number is determined by the direction in which the edges wind around the point.
+     */
+    //the reason for this function is to check if a point is inside a concave polygon
+    public static boolean CheckIfPointIsInsidePolygon(int[] p, Polygon polygon) {
+        boolean inside = false;
+        for (int i = 0, j = polygon.npoints - 1; i < polygon.npoints; j = i++) {
+            if (((polygon.ypoints[i] > p[1]) != (polygon.ypoints[j] > p[1])) &&
+                    (p[0] < (polygon.xpoints[j] - polygon.xpoints[i]) * (p[1] - polygon.ypoints[i]) / (polygon.ypoints[j]-polygon.ypoints[i]) + polygon.xpoints[i])) {
+                inside = !inside;
+            }
+        }
+        return inside;
     }
 }
 

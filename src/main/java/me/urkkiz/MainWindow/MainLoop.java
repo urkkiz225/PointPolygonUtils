@@ -10,7 +10,6 @@ import me.urkkiz.util.Transform;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
-import java.io.UncheckedIOException;
 import java.util.*;
 
 
@@ -25,16 +24,10 @@ public class MainLoop extends Init {
             @Override
             public void run() {
                 Render();
-                long frameEndTime = System.nanoTime();
                 TimeManager.Timers.replaceAll(aFloat -> aFloat + 34 * 0.001f);
                 TimeManager.MasterTime += 34 * 0.001f;
                 TimeManager.CalcFrameEndTime();
-                frameEndTime = System.nanoTime();
                 label.setText(String.valueOf(TimeManager.MasterTime));
-                //byte[] array = new byte[random.nextInt(4,16)];
-                //new Random().nextBytes(array);
-                //frame.setTitle("physics simulator epic"+new String(array, StandardCharsets.UTF_8));
-                //label.setText(new String(array, StandardCharsets.UTF_8));
                 PhysicsLoop.physicsLoop();
                 if(DebugLogEnabled) RequestDebugInfo();
             }
@@ -74,7 +67,7 @@ public class MainLoop extends Init {
                     Coordinates[0][i] = PolygonHolder.TempPolygon.get(i)[0];
                     Coordinates[1][i] = PolygonHolder.TempPolygon.get(i)[1];
                 }
-                PolygonHolder.PushPolygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length-1), Arrays.copyOf(Coordinates[1], Coordinates[1].length-1), Coordinates[0].length-1); //using Arrays.copyOf as a hotfix for too many points. might fix later.
+                PolygonHolder.PushPolygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length-1), Arrays.copyOf(Coordinates[1], Coordinates[1].length-1)); //using Arrays.copyOf as a hotfix for too many points. might fix later.
                 TimeManager.Timers.add(0F);
                 PolygonHolder.CompilePolygons();
                 PolygonHolder.TempPolygon.clear();
@@ -104,23 +97,24 @@ public class MainLoop extends Init {
                 +       "\n   First shape stats: "+(PolygonHolder.shapes.size()!=0?Arrays.toString(PolygonHolder.shapes.get(0).xpoints)+", "+Arrays.toString(PolygonHolder.shapes.get(0).ypoints)+", "+PolygonHolder.shapes.get(0).npoints:"And yet, the polygon array was empty. He stood there, unaware of what do make of his current situation. "
                 + "He blankly stared the 0-size of the array for many hours, and then promptly fell asleep. Next time, consider pushing a polygon.")
                 +"\n Physics: \n"
-                +"     Collision: "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConvex(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box a toddler?"
+                +"     Collision (SAT): "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConvex(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box a toddler?")
+                +"\n     Collision (repetitive point check): "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConcave(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box a toddler?")
                 +"\n     Is polygon concave: " + PolygonHolder.ConcaveHandler.get(0)[0] + "" + (PolygonHolder.ConcaveHandler.get(0).length==2? (Arrays.toString(((ArrayList<Integer[]>) (PolygonHolder.ConcaveHandler.get(0)[1])).get(0))) : "")
-                +"\n Transform: \n"+"     Accurate cumulative float overflow: "+Arrays.deepToString(Transform.AccurateCumulativeDoubleOverFlows)));
+                +"\n Transform: \n"+"     Accurate cumulative float overflow: "+Arrays.deepToString(Transform.AccurateCumulativeDoubleOverFlows));
     }
-    public static void EnableDebug() throws InterruptedException{
+    public static void InputCases() throws InterruptedException{
         System.out.println("Awaiting new input line...");
         String UserInput = StringUtil.UserLineInput();
-        //checking is case-sensitive due to comedic purposes.
+        //checking is case-sensitive purely due to comedic purposes.
         switch(UserInput){
             case "toggle the got damn debugs!", "debug", "enable debug plz", "TOGGLE THE FUCKING DEBUG YOU FUCKING IDIOTIC MACHINE!!! RAAAHHH!", "Hello, good sir. Do you mind apprising me with all the knowledge of mankind?", "give me debug. give it to me!", "beep boop. beep?", "Those who are wayward in spirit will gain understanding; those who complain will accept instruction." -> {
-                System.out.println("You have toggled debug logs. It can not be turned off. Have fun.");
+                System.out.println("Warning! This amount of console lines can slow down the program. Nevertheless, in your stupidity, you have enabled debug logs. It can not be turned off. Have fun.");
                 for (int i = 8; i != -1; i--) {
-                    System.out.print("Approaching hell. ETA: " + i + "s...\r");
-                    Thread.sleep(1250);
+                    System.out.print("\rApproaching hell. ETA: " + i + "s...\r");
+                    Thread.sleep(1350);
                 }
                 DebugLogEnabled=true;
-            } case "EXIT", "/E" -> {
+            } case "EXIT", "/E", "guh bye" -> {
                 System.out.println("guh bye.");
                 for (int i = 3; i != -1; i--) {
                     System.out.print("Exiting in " + i + "s...\r");
@@ -131,7 +125,9 @@ public class MainLoop extends Init {
                 System.out.println("Nah");
             }
             case "ConcaveDebug", "concave" -> {
-                System.out.println("Toggled concave debug. Type again to toggle... again.");
+                System.out.println("Toggled concave debug. Type again to toggle... again. Continuing in five seconds.");
+                Thread.sleep(5000);
+                DebugLogEnabled=false;
                 PhysicsLoop.ConcaveDebug=!PhysicsLoop.ConcaveDebug;
             }
             default -> System.out.println("Not a valid input. Try again. Or don't.");

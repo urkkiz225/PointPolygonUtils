@@ -4,26 +4,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 import me.urkkiz.Actions.WindowRuntime;
 import me.urkkiz.Physics.PhysicsLoop;
 import me.urkkiz.Shapes.*;
-import me.urkkiz.util.MathOperations;
-import me.urkkiz.util.StringUtil;
-import me.urkkiz.util.TimeManager;
 
 public class Init extends JFrame{
-    public static float t=0;
     public static JFrame frame = new JFrame();
     public static Canvas DrawPanel=new Canvas();
     public static JLabel label = new JLabel("that scouts a spy!");
 
     public static JLabel GeneralInfo = new JLabel("Entered polygon creation mode");
-
-    private static CustomPolygon customShape;
-
     public static MouseListener ML;
 
     public static boolean IsMouseDown=false;
@@ -60,17 +51,13 @@ public class Init extends JFrame{
         g2d.setRenderingHint(RenderingHints.KEY_STROKE_CONTROL, RenderingHints.VALUE_STROKE_PURE);
         //PolygonHolder.PushPolygon(new int[]{160,200,150,300},new int[]{0,0,150,300},4);
         frame.repaint();
-
-          //PolygonHolder.PushPolygon(new int[]{150,100,100,150},new int[]{200,200,250,250},4);
-  //      PolygonHolder.PushPolygon(new int[]{250,200,200,250},new int[]{300,300,250,250},4);
-//        PolygonHolder.CompilePolygons();
         MainLoop.g=(Graphics2D)DrawPanel.getGraphics();
         //PolygonHolder.CompilePolygons();
         MainLoop.Loop();
         ML=new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(PolygonHolder.shapes.size()!=0)PhysicsLoop.CheckCollision(new int[]{e.getX(),e.getY()},PolygonHolder.shapes.get(0));
+                if(PolygonHolder.shapes.size()!=0)System.out.println(PhysicsLoop.CheckIfPointIsInsidePolygon(new int[]{e.getX(), e.getY()},PolygonHolder.shapes.get(0)));
                 IsMouseDown=true;
                 if(GeneralInfo.isVisible()){
                     PolygonHolder.TempPolygon.add(new int[]{e.getX(), e.getY()});

@@ -8,8 +8,5 @@ public class TimeManager {
     public static void CalcFrameEndTime(){
         frameEndTime=((System.nanoTime()-frameEndTime));
     }
-    public static float DeltaTime(){
-        return ((System.nanoTime()-frameEndTime)*0.00000000001f);
-    }
     public static float MasterTime=0;
 }
