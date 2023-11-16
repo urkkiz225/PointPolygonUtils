@@ -1,5 +1,6 @@
 package me.urkkiz.Physics;
 
+import me.urkkiz.MainWindow.MainLoop;
 import me.urkkiz.Shapes.PolygonHolder;
 import me.urkkiz.util.MathOperations;
 import me.urkkiz.util.TimeManager;
@@ -8,14 +9,16 @@ import me.urkkiz.util.Transform;
 import static me.urkkiz.Physics.PhysicalPropertiesGlobal.GravitationalConstant;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class PhysicsLoop {
     public static float Angles=0;
+    public static boolean ConcaveDebug=false;
 
     public static void physicsLoop(){
         for (int i = 0; i < PolygonHolder.shapes.size(); i++) {
+            if(ConcaveDebug) IsPolygonConcave(PolygonHolder.shapes.get(i));
             //please got damnit pass only convex polygons
-            //if(PolygonHolder.shapes.size()>1)System.out.println(CollisionCheckConvex(PolygonHolder.shapes.get(0), PolygonHolder.shapes.get(1)));
             int[] previousPos=new int[]{PolygonHolder.shapes.get(i).ypoints[0],PolygonHolder.shapes.get(i).xpoints[0]};
             //Transform.MovePolygon(PolygonHolder.shapes.get(i), 0, CalculateGravity(i) - PolygonHolder.shapes.get(i).ypoints[0]);
             Transform.RotatePolygon(i, Angles,CalculateCenterOfGravity(PolygonHolder.shapes.get(i)));
@@ -58,17 +61,50 @@ public class PhysicsLoop {
             }
         }
     }
-    private static Boolean IsPolygonConcave(Polygon polygon){
-        if(polygon.npoints==3) return null; //if the polygon only has 3 points, it can not be defined as convex or concave.
+    public static void IsPolygonConcave(Polygon polygon) {
+        boolean isPolygonConcave=false;
+        ArrayList<Integer[]> ConcaveEdgePoints = new ArrayList<>();
+        if (polygon.npoints == 3) {
+            PolygonHolder.ConcaveHandler.add(null); //if the polygon only has 3 points, it can not be defined as convex or concave.
+            return;
+        }
+        int Direction = (polygon.xpoints[0] - polygon.xpoints[1] < 0) ? -1 : 1;
         //any other polygon is concave, if the interior angle between any adjacent edges is more than 180deg
-        for (int i = 1; i < polygon.npoints-1; i++) {
-            float[] PlusOneEdgeVector = new float[]{polygon.xpoints[i]-polygon.xpoints[i+1], polygon.ypoints[i]-polygon.ypoints[i+1]}; //could have used Vector<> but this might be more comprehensive
-            float[] MinusOneEdgeVector=new float[]{polygon.xpoints[i]-polygon.xpoints[i-1], polygon.ypoints[i]-polygon.ypoints[i-1]}; //also this local-space transformation isn't really needed, but it makes the math a bit simpler and optimizes memory usage by removing the need to use a matrix for use of both of the edge points
-            if(MathOperations.CrossProduct(PlusOneEdgeVector, MinusOneEdgeVector)*Math.signum((CalculateCenterOfGravity(polygon)[0]-polygon.xpoints[i])*(CalculateCenterOfGravity(polygon)[1]-polygon.ypoints[i]))<0){
-                return true;
+        //the way i do this is by checking the dot product between the previous edge and the normal of the angle between next edge, so as to detect if the angle is more than 90deg (dotp<0)
+        float[] MinusOneEdgeVector;
+        for (int i = 1; i < polygon.npoints - 1; i++) {
+            MinusOneEdgeVector = Direction == 1 ? new float[]{polygon.xpoints[i] - polygon.xpoints[i - 1], polygon.ypoints[i] - polygon.ypoints[i - 1]}//could have used Vector<> but this might be more comprehensive
+                    : new float[]{polygon.xpoints[i] - polygon.xpoints[i + 1], polygon.ypoints[i] - polygon.ypoints[i + 1]};
+            if(ConcaveDebug) {
+                //this doesn't work.
+                System.out.println(MathOperations.VectorDotProduct(MinusOneEdgeVector, new float[]{
+                        (float) ((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))),
+                        (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90)))
+                }));
+                //this maybe works.
+                MainLoop.g.draw(new Polygon(new int[]{polygon.xpoints[i + 1], (polygon.xpoints[i + 1]) + 4, (int) (Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))) + polygon.xpoints[i + 1]) + 3,
+                (int) Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90)) + polygon.xpoints[i + 1])},
+                new int[]{polygon.ypoints[i + 1], polygon.ypoints[i + 1], (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))) + polygon.ypoints[i + 1],
+                (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))) + polygon.ypoints[i + 1]}, 4));
+            }
+            //this works.
+            if (MathOperations.VectorDotProduct(MinusOneEdgeVector, new float[]{
+                    (float) ((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))),
+                    (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90)))}) < 0) {
+                ConcaveEdgePoints.add(new Integer[]{i-1, i, i+1});
+                isPolygonConcave=true;
             }
         }
-        return false;
+        //final check between the last and first edge. It isn't very elegant and could've probably been done with a modulo operator in the code block above instead, but i felt lazy.
+        if(MathOperations.VectorDotProduct(new float[]{
+                (float) ((polygon.xpoints[polygon.npoints - 2] - polygon.xpoints[polygon.npoints - 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[polygon.npoints - 2] - polygon.ypoints[polygon.npoints - 1]) * Math.sin(MathOperations.AnglesToRadians(90))),
+                (float) ((polygon.ypoints[polygon.npoints - 2] - polygon.ypoints[polygon.npoints - 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[polygon.npoints - 2] - polygon.xpoints[polygon.npoints - 1]) * Math.sin(MathOperations.AnglesToRadians(90)))}, new float[]{
+                (float) ((polygon.xpoints[polygon.npoints - 1] - polygon.xpoints[0]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[polygon.npoints - 1] - polygon.ypoints[0]) * Math.sin(MathOperations.AnglesToRadians(90))),
+                (float) ((polygon.ypoints[polygon.npoints - 1] - polygon.ypoints[0]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[polygon.npoints - 1] - polygon.xpoints[0]) * Math.sin(MathOperations.AnglesToRadians(90)))}) < 0){
+            isPolygonConcave=true;
+            ConcaveEdgePoints.add(new Integer[]{polygon.npoints-2, polygon.npoints-1, 0});
+        }
+        PolygonHolder.ConcaveHandler.add(isPolygonConcave ? new Object[]{true, ConcaveEdgePoints} : new Object[]{false});
     }
     /*
     the algorithm used in this program to check collisions between convex polygons is called Separating Axes Theorem. If you have two convex polygons,

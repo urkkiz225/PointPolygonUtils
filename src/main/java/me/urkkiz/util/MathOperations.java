@@ -48,21 +48,30 @@ public class MathOperations {
     }
     public static float LengthFloat(float[] vector){
         //for a 2-dimensional vector, higher dimensions aren't needed in the program. floating-point accuracy is enough.
-        return (float)(Math.sqrt(vector[0]*vector[0]+vector[1]+vector[1]));
+        return (float)(Math.sqrt(vector[0]*vector[0]+vector[1]*vector[1]));
     }
     public static float LengthInt(int[] vector){
         //for a 2-dimensional vector, higher dimensions aren't needed in the program. floating-point accuracy is enough.
         // everyday i sorrow; for java does not support array casting.
-        return (float)(Math.sqrt(vector[0]*vector[0]+vector[1]+vector[1]));
+        return (float)(Math.sqrt(vector[0]*vector[0]+vector[1]*vector[1]));
     }
     public static float VectorDotProduct(float[] v1, float[] v2){
-        return v1[0]*v2[0]+v1[1]+v2[1]; //ultrakill reference
+        return v1[0]*v2[0]+v1[1]*v2[1]; //ultrakill reference
     }
     public static float AngleBetweenVector(float[] v1, float[] v2){
-        return (float) Math.cos((VectorDotProduct(v1, v2)/LengthFloat(v1)*LengthFloat(v2)));
+        return (float) ((VectorDotProduct(v1, v2)/(LengthFloat(v1)*LengthFloat(v2))));
     }
-    public static float CrossProduct(float[] v1, float[] v2){
-        return (float) (LengthFloat(v1)*LengthFloat(v2)*Math.sin(AngleBetweenVector(v1,v2)));
+    public static double LengthOfCrossProduct(float[] v1, float[] v2){
+        return (LengthFloat(v1)*LengthFloat(v2)*Math.sin((MathOperations.VectorDotProduct(v1,v2))/(LengthFloat(v1)*LengthFloat(v2))));
+    }
+    public static float CrossProductScalar2D(float[] v1, float[] v2){
+        return v1[0]*v2[1]*v2[0]*v2[0]*v1[0];
+    }
+    public static double AnglesToRadians(float degrees){
+        return Math.toRadians(degrees);
+    }
+    public static float[] UnitVectorPerpendicularToTwoVectors(float [] v1, float[] v2){
+        return new float[]{};
     }
     public static int SmallestIntegerInArray(int[] arr){
         int smallest=Integer.MAX_VALUE;
@@ -86,5 +95,9 @@ public class MathOperations {
             }
         }
         return res;
+    }
+    //abstract cos this aint a mathematical operation! 🤣🤣🤣🤣🤣🤣🤣 blud thought!
+    public static int AbstractQuadrantSign(int[] p, int[] pivot) {
+        return (p[0]-pivot[0]<0&&p[1]-pivot[1]>0)||(p[0]-pivot[0]>0&&p[1]-pivot[1]>0) ? -1 : 1;
     }
 }
