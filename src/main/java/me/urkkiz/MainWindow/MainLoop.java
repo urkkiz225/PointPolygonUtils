@@ -28,8 +28,8 @@ public class MainLoop extends Init {
                 TimeManager.MasterTime += 34 * 0.001f;
                 TimeManager.CalcFrameEndTime();
                 label.setText(String.valueOf(TimeManager.MasterTime));
-                PhysicsLoop.physicsLoop();
                 if(DebugLogEnabled) RequestDebugInfo();
+                PhysicsLoop.physicsLoop();
             }
         };
         long delay = 17;
@@ -67,10 +67,16 @@ public class MainLoop extends Init {
                     Coordinates[0][i] = PolygonHolder.TempPolygon.get(i)[0];
                     Coordinates[1][i] = PolygonHolder.TempPolygon.get(i)[1];
                 }
-                PolygonHolder.PushPolygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length-1), Arrays.copyOf(Coordinates[1], Coordinates[1].length-1)); //using Arrays.copyOf as a hotfix for too many points. might fix later.
-                TimeManager.Timers.add(0F);
-                PolygonHolder.CompilePolygons();
-                PolygonHolder.TempPolygon.clear();
+                if(Coordinates[0].length!=2) {
+                    PolygonHolder.PushPolygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length - 1), Arrays.copyOf(Coordinates[1], Coordinates[1].length - 1)); //using Arrays.copyOf as a hotfix for too many points. might fix later.
+                    PhysicsLoop.IsPolygonConcave(new Polygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length - 1), Arrays.copyOf(Coordinates[1], Coordinates[1].length - 1), Coordinates[0].length - 1));
+                    TimeManager.Timers.add(0F);
+                    PolygonHolder.CompilePolygons();
+                    PolygonHolder.TempPolygon.clear();
+                }else{
+                    System.out.println("Can't create polygon from 2 points!");
+                    PolygonHolder.TempPolygon.clear();
+                };
             }
         }
         //i do not know what i have done in this code block. it is unholy.
@@ -121,9 +127,8 @@ public class MainLoop extends Init {
                     Thread.sleep(1000);
                 }
                 System.exit(0);
-            }case "Sing me a song" -> {
+            }case "Sing me a song" ->
                 System.out.println("Nah");
-            }
             case "ConcaveDebug", "concave" -> {
                 System.out.println("Toggled concave debug. Type again to toggle... again. Continuing in five seconds.");
                 Thread.sleep(5000);

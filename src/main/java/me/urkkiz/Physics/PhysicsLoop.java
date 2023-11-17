@@ -14,16 +14,19 @@ import java.util.ArrayList;
 public class PhysicsLoop {
     public static float Angles=0;
     public static boolean ConcaveDebug=false;
+    ArrayList<Boolean> Collisions = new ArrayList<>();
+    private static ArrayList<float[]> Velocities = new ArrayList<>();
+    public static float mult=1;
 
     public static void physicsLoop(){
         for (int i = 0; i < PolygonHolder.shapes.size(); i++) {
             if(ConcaveDebug) IsPolygonConcave(PolygonHolder.shapes.get(i));
-            //please got damnit pass only convex polygons
             int[] previousPos=new int[]{PolygonHolder.shapes.get(i).ypoints[0],PolygonHolder.shapes.get(i).xpoints[0]};
-            //Transform.MovePolygon(PolygonHolder.shapes.get(i), 0, CalculateGravity(i) - PolygonHolder.shapes.get(i).ypoints[0]);
+            Transform.MovePolygon(PolygonHolder.shapes.get(i), 0, mult*(CalculateGravity(i) - PolygonHolder.shapes.get(i).ypoints[0]));
             Transform.RotatePolygon(i, Angles,CalculateCenterOfGravity(PolygonHolder.shapes.get(i)));
             //Detect if shape has not moved \/ (plz make dual point precision later)
             if(PolygonHolder.shapes.get(i).xpoints[0]-previousPos[0]==0&&PolygonHolder.shapes.get(i).ypoints[1]-previousPos[1]==0) TimeManager.Timers.set(i,0F);
+            CheckAllCollisions(i);
         }
     }
     public static float CalculateGravity(int TimerIndex){
@@ -49,13 +52,37 @@ public class PhysicsLoop {
         }
         return new float[]{res[0] / arr[0].length, res[1] / arr[0].length};
     }
+    public static void CheckAllCollisions(int i){
+        if((boolean)PolygonHolder.ConcaveHandler.get(i)[0]){
+            for (Polygon p2:PolygonHolder.shapes) {
+                if(PolygonHolder.shapes.get(i)!=p2){
+                    float[][] CentersOfPolygons= new float[][]{CalculateCenterOfGravity(PolygonHolder.shapes.get(i)),CalculateCenterOfGravity(p2)};
+                    if(Math.abs(CentersOfPolygons[0][0]-CentersOfPolygons[1][0])<=PolygonHolder.Bounds.get(i)[0]&&Math.abs(CentersOfPolygons[0][1]-CentersOfPolygons[1][1])<=PolygonHolder.Bounds.get(i)[1])
+                        System.out.println(CollisionCheckConcave(PolygonHolder.shapes.get(i),p2));
+                }
+            }
+        }
+        if(!(boolean)PolygonHolder.ConcaveHandler.get(i)[0]){
+            for (Polygon p2:PolygonHolder.shapes) {
+                if(PolygonHolder.shapes.get(i)!=p2&&!(boolean)PolygonHolder.ConcaveHandler.get(PolygonHolder.shapes.indexOf(p2))[0]){
+                    float[][] CentersOfPolygons= new float[][]{CalculateCenterOfGravity(PolygonHolder.shapes.get(i)),CalculateCenterOfGravity(p2)};
+                    if(Math.abs(CentersOfPolygons[0][0]-CentersOfPolygons[1][0])<=2*Math.max(PolygonHolder.Bounds.get(i)[0], PolygonHolder.Bounds.get(PolygonHolder.shapes.indexOf(p2))[0])&&Math.abs(CentersOfPolygons[0][1]-CentersOfPolygons[1][1])<=2*Math.max(PolygonHolder.Bounds.get(i)[1], PolygonHolder.Bounds.get(PolygonHolder.shapes.indexOf(p2))[1]))
+                        System.out.println(CollisionCheckConcave(PolygonHolder.shapes.get(i),p2));
+                }else if ((boolean)PolygonHolder.ConcaveHandler.get(PolygonHolder.shapes.indexOf(p2))[0]){
+                    float[][] CentersOfPolygons= new float[][]{CalculateCenterOfGravity(PolygonHolder.shapes.get(i)),CalculateCenterOfGravity(p2)};
+                    if(Math.abs(CentersOfPolygons[0][0]-CentersOfPolygons[1][0])<=2*Math.max(PolygonHolder.Bounds.get(i)[0], PolygonHolder.Bounds.get(PolygonHolder.shapes.indexOf(p2))[0])&&Math.abs(CentersOfPolygons[0][1]-CentersOfPolygons[1][1])<=2*Math.max(PolygonHolder.Bounds.get(i)[1], PolygonHolder.Bounds.get(PolygonHolder.shapes.indexOf(p2))[1]))
+                        System.out.println(CollisionCheckConcave(PolygonHolder.shapes.get(i),p2));
+                }
+            }
+        }
+    }
 
     //a day later, i do not dare to question the gears of the following function; it is a miracle it works in the first place, and miracles are not to be tampered with.
     public static void IsPolygonConcave(Polygon polygon) {
         boolean isPolygonConcave=false;
         ArrayList<Integer[]> ConcaveEdgePoints = new ArrayList<>();
         if (polygon.npoints == 3) {
-            PolygonHolder.ConcaveHandler.add(null); //if the polygon only has 3 points, it can not be defined as convex or concave.
+            PolygonHolder.ConcaveHandler.add(new Object[]{false}); //if the polygon only has 3 points, it can not be defined as convex or concave.
             return;
         }
         int Direction = (polygon.xpoints[0] - polygon.xpoints[1] < 0) ? -1 : 1;
@@ -66,31 +93,32 @@ public class PhysicsLoop {
             MinusOneEdgeVector = Direction == 1 ? new float[]{polygon.xpoints[i] - polygon.xpoints[i - 1], polygon.ypoints[i] - polygon.ypoints[i - 1]}//could have used Vector<> but this might be more comprehensive
                     : new float[]{polygon.xpoints[i] - polygon.xpoints[i + 1], polygon.ypoints[i] - polygon.ypoints[i + 1]};
             if(ConcaveDebug) {
+                System.out.println(isPolygonConcave);
                 //this doesn't work.
                 System.out.println(MathOperations.VectorDotProduct(MinusOneEdgeVector, new float[]{
-                        (float) ((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))),
-                        (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90)))
+                        (float) ((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))),
+                        (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90)))
                 }));
                 //this maybe works.
-                MainLoop.g.draw(new Polygon(new int[]{polygon.xpoints[i + 1], (polygon.xpoints[i + 1]) + 4, (int) (Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))) + polygon.xpoints[i + 1]) + 3,
-                (int) Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90)) + polygon.xpoints[i + 1])},
-                new int[]{polygon.ypoints[i + 1], polygon.ypoints[i + 1], (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))) + polygon.ypoints[i + 1],
-                (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))) + polygon.ypoints[i + 1]}, 4));
+                MainLoop.g.draw(new Polygon(new int[]{polygon.xpoints[i + 1], (polygon.xpoints[i + 1]) + 4, (int) (Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.xpoints[i + 1]) + 3,
+                (int) Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90)) + polygon.xpoints[i + 1])},
+                new int[]{polygon.ypoints[i + 1], polygon.ypoints[i + 1], (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.ypoints[i + 1],
+                (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.ypoints[i + 1]}, 4));
             }
             //this works.
             if (MathOperations.VectorDotProduct(MinusOneEdgeVector, new float[]{
-                    (float) ((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90))),
-                    (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.AnglesToRadians(90)))}) < 0) {
+                    (float) ((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))),
+                    (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90)))}) < 0) {
                 ConcaveEdgePoints.add(new Integer[]{i-1, i, i+1});
                 isPolygonConcave=true;
             }
         }
         //final check between the last and first edge. It isn't very elegant and could've probably been done with a modulo operator in the code block above instead, but i felt lazy.
         if(MathOperations.VectorDotProduct(new float[]{
-                (float) ((polygon.xpoints[polygon.npoints - 2] - polygon.xpoints[polygon.npoints - 1]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[polygon.npoints - 2] - polygon.ypoints[polygon.npoints - 1]) * Math.sin(MathOperations.AnglesToRadians(90))),
-                (float) ((polygon.ypoints[polygon.npoints - 2] - polygon.ypoints[polygon.npoints - 1]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[polygon.npoints - 2] - polygon.xpoints[polygon.npoints - 1]) * Math.sin(MathOperations.AnglesToRadians(90)))}, new float[]{
-                (float) ((polygon.xpoints[polygon.npoints - 1] - polygon.xpoints[0]) * Math.cos(MathOperations.AnglesToRadians(90)) - (polygon.ypoints[polygon.npoints - 1] - polygon.ypoints[0]) * Math.sin(MathOperations.AnglesToRadians(90))),
-                (float) ((polygon.ypoints[polygon.npoints - 1] - polygon.ypoints[0]) * Math.cos(MathOperations.AnglesToRadians(90)) + (polygon.xpoints[polygon.npoints - 1] - polygon.xpoints[0]) * Math.sin(MathOperations.AnglesToRadians(90)))}) < 0){
+                (float) ((polygon.xpoints[polygon.npoints - 2] - polygon.xpoints[polygon.npoints - 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[polygon.npoints - 2] - polygon.ypoints[polygon.npoints - 1]) * Math.sin(MathOperations.DegreesToRadians(90))),
+                (float) ((polygon.ypoints[polygon.npoints - 2] - polygon.ypoints[polygon.npoints - 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[polygon.npoints - 2] - polygon.xpoints[polygon.npoints - 1]) * Math.sin(MathOperations.DegreesToRadians(90)))}, new float[]{
+                (float) ((polygon.xpoints[polygon.npoints - 1] - polygon.xpoints[0]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[polygon.npoints - 1] - polygon.ypoints[0]) * Math.sin(MathOperations.DegreesToRadians(90))),
+                (float) ((polygon.ypoints[polygon.npoints - 1] - polygon.ypoints[0]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[polygon.npoints - 1] - polygon.xpoints[0]) * Math.sin(MathOperations.DegreesToRadians(90)))}) < 0){
             isPolygonConcave=true;
             ConcaveEdgePoints.add(new Integer[]{polygon.npoints-2, polygon.npoints-1, 0});
         }
@@ -141,12 +169,13 @@ public class PhysicsLoop {
         /*
         the problem with this algorithm is, for example, if you have two very long triangles perpendicular to each other
         intersecting each other at their visual center, this will not detect a collision, since none of the points of either polygons are inside the other polygon.
+        in physics simulation, this fortunately only happens with objects with a very high velocity / with a very low framerate.
          */
     }
     /*
     this next method for checking if a point is inside a polygon is called winding number algorithm aka nonzero-rule algorithm
     how it works is if the winding number which is calculated here is more than zero, it means that the point is inside the polygon.
-    the sign of a winding number is determined by the direction in which the edges wind around the point.
+    the sign of a winding number is determined by the direction in which the edges wind/wrap around the point.
      */
     //the reason for this function is to check if a point is inside a concave polygon
     public static boolean CheckIfPointIsInsidePolygon(int[] p, Polygon polygon) {

@@ -1,5 +1,6 @@
 package me.urkkiz.Shapes;
 
+import me.urkkiz.Physics.PhysicsLoop;
 import me.urkkiz.util.MathOperations;
 
 import java.awt.*;
@@ -17,8 +18,19 @@ public class PolygonHolder {
     public static void CompilePolygons(){
         //do not modify BasePolygons
         BasePolygons=shapes;
-        MathOperations.CompileBounds();
+        CompileBounds();
     }
     public static ArrayList<int[]> TempPolygon=new ArrayList<>();
+    public static void CompileBounds(){
+        for (Polygon polygon : PolygonHolder.shapes) {
+            int[] MDist=new int[2];
+            float[] Center = PhysicsLoop.CalculateCenterOfGravity(polygon);
+            for (int i = 0; i < polygon.npoints; i++) {
+                if(polygon.xpoints[i]-Center[0]>MDist[0])MDist[0]=polygon.xpoints[i]-(int)Center[0];
+                if(polygon.ypoints[i]-Center[1]>MDist[1])MDist[1]=polygon.ypoints[i]-(int)Center[1];
+            }
+            PolygonHolder.Bounds.add(MDist);
+        }
 
+    }
 }

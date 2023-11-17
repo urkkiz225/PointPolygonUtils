@@ -35,7 +35,6 @@ public class WindowRuntime{
                     throw new RuntimeException(ex);
                 }
             }
-
         }
 
         @Override

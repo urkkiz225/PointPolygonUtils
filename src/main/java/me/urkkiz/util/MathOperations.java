@@ -1,28 +1,11 @@
 package me.urkkiz.util;
 
-import me.urkkiz.Physics.PhysicsLoop;
-import me.urkkiz.Shapes.PolygonHolder;
-
-import java.awt.*;
-
 public class MathOperations {
     public static float Clamp(float val, float min, float max) {
         return Math.max(min, Math.min(max, val));
     }
     public static float RadiansToAngles(float Radians){
         return (float) (Radians*(180/Math.PI));
-    }
-    public static void CompileBounds(){
-        for (Polygon polygon : PolygonHolder.shapes) {
-            int[] MDist=new int[2];
-            float[] Center = PhysicsLoop.CalculateCenterOfGravity(polygon);
-            for (int i = 0; i < polygon.npoints; i++) {
-                if(polygon.xpoints[i]-Center[0]>MDist[0])MDist[0]=polygon.xpoints[i]-(int)Center[0];
-                if(polygon.ypoints[i]-Center[1]>MDist[1])MDist[1]=polygon.ypoints[i]-(int)Center[1];
-            }
-            PolygonHolder.Bounds.add(MDist);
-        }
-
     }
     public static float FindClosestValue(float target, float[] vals){
         float closest=0;
@@ -49,7 +32,8 @@ public class MathOperations {
     public static double LengthOfCrossProduct(float[] v1, float[] v2){
         return (LengthFloat(v1)*LengthFloat(v2)*Math.sin((MathOperations.VectorDotProduct(v1,v2))/(LengthFloat(v1)*LengthFloat(v2))));
     }
-    public static double AnglesToRadians(float degrees){
+    public static double DegreesToRadians(float degrees){
+        //woah! what a cool function! i sure hope it is original code.
         return Math.toRadians(degrees);
     }
     public static int SmallestIntegerInArray(int[] arr){

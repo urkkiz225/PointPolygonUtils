@@ -57,7 +57,6 @@ public class Init extends JFrame{
         ML=new MouseListener() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if(PolygonHolder.shapes.size()!=0)System.out.println(PhysicsLoop.CheckIfPointIsInsidePolygon(new int[]{e.getX(), e.getY()},PolygonHolder.shapes.get(0)));
                 IsMouseDown=true;
                 if(GeneralInfo.isVisible()){
                     PolygonHolder.TempPolygon.add(new int[]{e.getX(), e.getY()});
