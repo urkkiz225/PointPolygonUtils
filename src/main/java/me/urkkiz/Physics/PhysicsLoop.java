@@ -1,19 +1,21 @@
 package me.urkkiz.Physics;
 
 import me.urkkiz.MainWindow.Init;
+import me.urkkiz.MainWindow.MainLoop;
 import me.urkkiz.Shapes.PolygonHolder;
 import me.urkkiz.util.MathOperations;
 import me.urkkiz.util.Transform;
 
 
 import static me.urkkiz.MainWindow.Init.frame;
+import static me.urkkiz.MainWindow.MainLoop.PseudoCenters;
 import static me.urkkiz.MainWindow.MainLoop.g;
 
 import java.awt.*;
 import java.util.ArrayList;
 
 public class PhysicsLoop {
-    public static float Angles=0;
+    public static float Degrees =0;
     public static boolean ConcaveDebug=false;
     public static float[] Movement = new float[2];
     public static int[] PrevMousePosition=new int[]{MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x,MouseInfo.getPointerInfo().getLocation().y-frame.getLocationOnScreen().y};
@@ -24,8 +26,14 @@ public class PhysicsLoop {
             if(Init.IsMouseDown&&!Init.GeneralInfo.isVisible())MouseDragMove(i);
             if (ConcaveDebug) IsPolygonConcave(PolygonHolder.shapes.get(i));
             if(Init.PolygonsSelected.contains(i)) {
-                if(Movement[0]!=0||Movement[1]!=0)Transform.MovePolygon(i, Movement[0], Movement[1]);
-                if(Angles!=0)Transform.RotatePolygon(i, Angles, CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
+                if(Movement[0]!=0||Movement[1]!=0){
+                    Transform.MovePolygon(i, Movement[0]*(18f / MainLoop.Period), Movement[1] * (18f / MainLoop.Period));
+                    PseudoCenters.set(i,CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
+                }
+                if(Degrees !=0){
+                    Transform.RotatePolygon(i, Degrees*(18f / MainLoop.Period), CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
+                    PseudoCenters.set(i,CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
+                }
             }
             CheckAllCollisions(i);
             Init.AmountOfCollisions.setText(Collisions.size()!=0?"Amount of collisions:"+Collisions.size():"Amount of collisions: 0");
@@ -56,6 +64,7 @@ public class PhysicsLoop {
         return new float[]{res[0] / arr[0].length, res[1] / arr[0].length};
     }
     public static void CheckAllCollisions(int i){
+        int AmountOfCollision=Collisions.size();
         if((boolean)PolygonHolder.ConcaveHandler.get(i)[0]){
             for (Polygon p2:PolygonHolder.shapes) {
                 if(PolygonHolder.shapes.get(i)!=p2){
@@ -78,6 +87,7 @@ public class PhysicsLoop {
                 }
             }
         }
+        if(AmountOfCollision-Collisions.size()==-2)Collisions.remove(Collisions.size()-1);
     }
 
     //I do not dare to question the very gears of the following function; it is a miracle it works in the first place, and miracles are not to be tampered with.

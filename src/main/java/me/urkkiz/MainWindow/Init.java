@@ -5,7 +5,6 @@ import java.awt.*;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Random;
 
 import me.urkkiz.Actions.WindowRuntime;
@@ -18,7 +17,7 @@ public class Init extends JFrame{
     public static JLabel label = new JLabel("");
     public static ArrayList<Integer> PolygonsSelected=new ArrayList<>();
 
-    public static JLabel GeneralInfo = new JLabel("Polygon creation mode");
+    public static JLabel GeneralInfo = new JLabel("Polygon creation mode active");
     public static JLabel SelectedPolygon = new JLabel("Selected Polygon: None");
     public static JLabel AmountOfCollisions = new JLabel("Amount of collisions: 0");
     public static MouseListener ML;

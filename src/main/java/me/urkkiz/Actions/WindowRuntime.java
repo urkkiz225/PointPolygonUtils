@@ -1,10 +1,10 @@
 package me.urkkiz.Actions;
 
-import com.sun.tools.javac.Main;
 import me.urkkiz.MainWindow.Init;
 import me.urkkiz.MainWindow.MainLoop;
 import me.urkkiz.Physics.PhysicsLoop;
 
+import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelEvent;
@@ -28,8 +28,8 @@ public class WindowRuntime{
         public void keyPressed(KeyEvent e) {
             //cases r prolly better but this will suffice
             Random random =new Random();
-            if(e.getKeyCode()==KeyEvent.VK_RIGHT) PhysicsLoop.Angles=0.05f;
-            if(e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Angles=-0.05f;
+            if(e.getKeyCode()==KeyEvent.VK_RIGHT) PhysicsLoop.Degrees =0.05f;
+            if(e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Degrees =-0.05f;
             if(e.getKeyCode()==KeyEvent.VK_W) PhysicsLoop.Movement[1]=-5;
             if(e.getKeyCode()==KeyEvent.VK_S) PhysicsLoop.Movement[1]=5f;
             if(e.getKeyCode()==KeyEvent.VK_A) PhysicsLoop.Movement[0]=-5f;
@@ -50,7 +50,7 @@ public class WindowRuntime{
 
         @Override
         public void keyReleased(KeyEvent e) {
-            if(e.getKeyCode()==KeyEvent.VK_RIGHT||e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Angles=0.0f;
+            if(e.getKeyCode()==KeyEvent.VK_RIGHT||e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Degrees =0.0f;
             if(e.getKeyCode()==KeyEvent.VK_W) PhysicsLoop.Movement[1]=0;
             if(e.getKeyCode()==KeyEvent.VK_S) PhysicsLoop.Movement[1]=0;
             if(e.getKeyCode()==KeyEvent.VK_A) PhysicsLoop.Movement[0]=0;
@@ -62,6 +62,7 @@ public class WindowRuntime{
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             MainLoop.g.scale(1+(e.getPreciseWheelRotation()*0.01f),1+(e.getPreciseWheelRotation()*0.01f));
+            ((Graphics2D)MainLoop.DrawPanel.getGraphics()).scale(1+(e.getPreciseWheelRotation()*0.01f),1+(e.getPreciseWheelRotation()*0.01f));
             //Init.DrawPanel.setBounds((int) (Init.WIDTH*(1+(e.getPreciseWheelRotation())*0.01f)), (int) (Init.HEIGHT*(1+(e.getPreciseWheelRotation()*0.01f))));
         }
     };
