@@ -9,12 +9,4 @@ public class StringUtil {
         String input=scanner.nextLine();
         return input.length() != 0 ? input : "0";
     }
-
-    public static String UserCharInput() {
-        return scanner.next();
-    }
-
-    public static int UserIntInput(){
-    return scanner.nextInt();
-    }
 }

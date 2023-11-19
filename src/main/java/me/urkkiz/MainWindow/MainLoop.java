@@ -7,10 +7,14 @@ import me.urkkiz.util.StringUtil;
 import me.urkkiz.util.TimeManager;
 import me.urkkiz.util.Transform;
 
+import javax.sound.sampled.*;
+import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
+import java.io.IOException;
 import java.util.*;
+import java.util.Timer;
 
 
 public class MainLoop extends Init {
@@ -18,14 +22,20 @@ public class MainLoop extends Init {
 
     private static final Random random=new Random();
     public static boolean DebugLogEnabled=false;
+    public static ArrayList<JLabel> PolygonIndexes=new ArrayList<>();
+
+    private static TimerTask MainLoop_;
+    private static int Period=18;
+    private static boolean PouringSoulIntoClairTheLune=false;
 
     public static void Loop() {
-        TimerTask MainLoop = new TimerTask() {
+        g.setColor(Color.red);
+        MainLoop_ = new TimerTask() {
             @Override
             public void run() {
                 Render();
                 TimeManager.Timers.replaceAll(aFloat -> aFloat + 34 * 0.001f);
-                TimeManager.MasterTime += 34 * 0.001f;
+                TimeManager.MasterTime += 4 * 0.001f;
                 TimeManager.CalcFrameEndTime();
                 label.setText(String.valueOf(TimeManager.MasterTime));
                 if(DebugLogEnabled) RequestDebugInfo();
@@ -33,15 +43,13 @@ public class MainLoop extends Init {
             }
         };
         long delay = 17;
-        long period = 34;
         Timer timer = new Timer();
-        timer.scheduleAtFixedRate(MainLoop, delay, period);
+        timer.scheduleAtFixedRate(MainLoop_, delay, Period);
     }
 
     public static void Render() {
         DrawPanel.paintAll(g);
         for (Polygon polygon : PolygonHolder.shapes) {
-            g.setColor(Color.red);
             g.fill(polygon);
         }
         //drawing of polygon editing
@@ -68,26 +76,37 @@ public class MainLoop extends Init {
                     Coordinates[1][i] = PolygonHolder.TempPolygon.get(i)[1];
                 }
                 if(Coordinates[0].length!=2) {
+                    Transform.DeltaPositions.add(new int[Coordinates[0].length - 1][2]);
+
                     PolygonHolder.PushPolygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length - 1), Arrays.copyOf(Coordinates[1], Coordinates[1].length - 1)); //using Arrays.copyOf as a hotfix for too many points. might fix later.
                     PhysicsLoop.IsPolygonConcave(new Polygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length - 1), Arrays.copyOf(Coordinates[1], Coordinates[1].length - 1), Coordinates[0].length - 1));
+                    float[] PseudoCenterOfPolygon=PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1));
+                    PolygonIndexes.add(new JLabel(String.valueOf(PolygonHolder.shapes.size()-1)));
+                    PolygonIndexes.get(PolygonHolder.shapes.size()-1).setText(String.valueOf(PolygonHolder.shapes.size()-1));
+                    PolygonIndexes.get(PolygonHolder.shapes.size()-1).setFont(new Font(null,Font.BOLD,12));
+                    PolygonIndexes.get(PolygonHolder.shapes.size()-1).setBounds((int)PseudoCenterOfPolygon[0]-12,(int)PseudoCenterOfPolygon[1]-12,24,24);
+                    PolygonIndexes.get(PolygonHolder.shapes.size()-1).setLocation((int) PseudoCenterOfPolygon[0], (int) PseudoCenterOfPolygon[1]);
+                    frame.add(PolygonIndexes.get(PolygonHolder.shapes.size()-1));
+                    frame.update(g);
+                    frame.setLayout(null);
+                    frame.setVisible(true);
                     TimeManager.Timers.add(0F);
                     PolygonHolder.CompilePolygons();
                     PolygonHolder.TempPolygon.clear();
                 }else{
                     System.out.println("Can't create polygon from 2 points!");
                     PolygonHolder.TempPolygon.clear();
-                };
+                }
             }
         }
-        //i do not know what i have done in this code block. it is unholy.
-        if (PolygonHolder.TempPolygon.size()==0){
+        if (PolygonHolder.TempPolygon.size()==0&&GeneralInfo.isVisible()){
             g.draw(new Rectangle2D.Float(MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x-5,MouseInfo.getPointerInfo().getLocation().y-frame.getLocationOnScreen().y-5,10,10));
         }
-        g.fillRect(500, (int) MathOperations.Clamp((float) (0 + (9.81 * (TimeManager.MasterTime * TimeManager.MasterTime))), 0, 420), 50, 50);
     }
     @SuppressWarnings("unchecked")
     private static void RequestDebugInfo(){
         PhysicsLoop.IsPolygonConcave(PolygonHolder.shapes.get(0));
+        ArrayList<int[]> points=new ArrayList<>(){{add(new int[]{2,3});add(new int[]{3,2});add(new int[]{1920,1080});}};
         System.out.print("\nMathOperations: \n" +
                 "   Vector Length (int and float param): " + MathOperations.LengthFloat(new float[]{1.5f,1+random.nextInt(8)}) + " : " + MathOperations.LengthInt(new int[]{1,1})
                 +"\n    Vector dot product: " + MathOperations.VectorDotProduct(new float[]{1,1+random.nextInt(8)}, new float[]{-2,-2})
@@ -98,6 +117,9 @@ public class MainLoop extends Init {
                 +    "\n    Closest value to number from list:" +MathOperations.FindClosestValue(3.14159f,new float[]{4,4,4+random.nextInt(8),4})
                 +     "\n    Radians to angles: "+MathOperations.RadiansToAngles(3.14159f+random.nextFloat(-3.14159f,3.14159f))+"°"
                 +      "\n    Abstract sign of quadrant: "+MathOperations.AbstractQuadrantSign(new int[]{random.nextInt(-4,4),random.nextInt(-4,4)},new int[]{random.nextInt(-4,4),random.nextInt(-4,4)})
+                +       "\n    Line intersection: " + (PolygonHolder.shapes.size()>1?Arrays.deepToString(MathOperations.CheckLineIntersection(new int[][]{new int[]{PolygonHolder.shapes.get(0).xpoints[0], PolygonHolder.shapes.get(0).ypoints[0]},new int[]{PolygonHolder.shapes.get(0).xpoints[1], PolygonHolder.shapes.get(0).ypoints[1]}},new int[][]{new int[]{PolygonHolder.shapes.get(1).xpoints[0], PolygonHolder.shapes.get(0).ypoints[0]},new int[]{PolygonHolder.shapes.get(1).xpoints[1], PolygonHolder.shapes.get(0).ypoints[1]}})) : "Not enough polygons to eval intersection")
+                +        "\n    Depth of point polygon penetration: " + (PolygonHolder.shapes.size()>1?MathOperations.GetPenetrationDepthOfPointOnPolygon(new int[]{PolygonHolder.shapes.get(0).xpoints[0],PolygonHolder.shapes.get(0).xpoints[0]},0,PolygonHolder.shapes.get(1)) : "Not enough polygons to eval intersection")
+                +         "\n    Closest two points: " + (PolygonHolder.shapes.size()>1?MathOperations.ClosestTwoPoints(new int[]{PolygonHolder.shapes.get(0).xpoints[0],PolygonHolder.shapes.get(0).xpoints[0]},points) : "Not enough polygons to eval intersection")
                 + "\n Polygon holder: \n" +
                     "   Base Polygons: " + PolygonHolder.BasePolygons.size()
                 +       "\n   First shape stats: "+(PolygonHolder.shapes.size()!=0?Arrays.toString(PolygonHolder.shapes.get(0).xpoints)+", "+Arrays.toString(PolygonHolder.shapes.get(0).ypoints)+", "+PolygonHolder.shapes.get(0).npoints:"And yet, the polygon array was empty. He stood there, unaware of what do make of his current situation. "
@@ -106,7 +128,8 @@ public class MainLoop extends Init {
                 +"     Collision (SAT): "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConvex(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box a toddler?")
                 +"\n     Collision (repetitive point check): "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConcave(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box a toddler?")
                 +"\n     Is polygon concave: " + PolygonHolder.ConcaveHandler.get(0)[0] + "" + (PolygonHolder.ConcaveHandler.get(0).length==2? (Arrays.toString(((ArrayList<Integer[]>) (PolygonHolder.ConcaveHandler.get(0)[1])).get(0))) : "")
-                +"\n Transform: \n"+"     Accurate cumulative float overflow: "+Arrays.deepToString(Transform.AccurateCumulativeDoubleOverFlows));
+                +"\n Transform: \n"+"     Accurate cumulative float overflow: "+Arrays.deepToString(Transform.AccurateCumulativeDoubleOverFlows)
+                +"\n\n\n");
     }
     public static void InputCases() throws InterruptedException{
         System.out.println("Awaiting new input line...");
@@ -114,10 +137,10 @@ public class MainLoop extends Init {
         //checking is case-sensitive purely due to comedic purposes.
         switch(UserInput){
             case "toggle the got damn debugs!", "debug", "enable debug plz", "TOGGLE THE FUCKING DEBUG YOU FUCKING IDIOTIC MACHINE!!! RAAAHHH!", "Hello, good sir. Do you mind apprising me with all the knowledge of mankind?", "give me debug. give it to me!", "beep boop. beep?", "Those who are wayward in spirit will gain understanding; those who complain will accept instruction." -> {
-                System.out.println("Warning! This amount of console lines can slow down the program. Nevertheless, in your stupidity, you have enabled debug logs. It can not be turned off. Have fun.");
+                System.out.println("You have enabled debug logs. It can not be turned off. Have fun.");
                 for (int i = 8; i != -1; i--) {
                     System.out.print("\rApproaching hell. ETA: " + i + "s...\r");
-                    Thread.sleep(1350);
+                    Thread.sleep(1250);
                 }
                 DebugLogEnabled=true;
             } case "EXIT", "/E", "guh bye" -> {
@@ -127,13 +150,87 @@ public class MainLoop extends Init {
                     Thread.sleep(1000);
                 }
                 System.exit(0);
-            }case "Sing me a song" ->
-                System.out.println("Nah");
-            case "ConcaveDebug", "concave" -> {
+            }case "Sing me a song", "Play for me", "Play me the most beautiful piano piece" -> {
+                if(!PouringSoulIntoClairTheLune) {
+                    AudioInputStream audioInputStream;
+                    try {
+                        audioInputStream = AudioSystem.getAudioInputStream(Objects.requireNonNull(Init.class.getClassLoader().getResourceAsStream("ClairDeLune.wav")));
+                        Clip clip = AudioSystem.getClip();
+                        clip.open(audioInputStream);
+                        clip.loop(Clip.LOOP_CONTINUOUSLY);
+                        System.out.println("Enjoy this majestic piece of history. Do NOT type prompts again to toggle. Please");
+                    } catch (UnsupportedAudioFileException | LineUnavailableException e) {
+                        System.out.println("Something went terribly wrong. I really do not know what, and I have a headache. Continuing in five seconds. " + e);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            case "background", "bgc" ->{
+                System.out.println("Please enter a new background color: ");
+                String s=StringUtil.UserLineInput();
+                switch(s.toLowerCase(Locale.ROOT)){
+                    case "red" -> DrawPanel.setBackground(Color.red);
+                    case "blue" -> DrawPanel.setBackground(Color.blue);
+                    case "black" -> DrawPanel.setBackground(Color.black);
+                    case "white" -> DrawPanel.setBackground(Color.white);
+                    case "yellow" -> DrawPanel.setBackground(Color.yellow);
+                    case "orange" -> DrawPanel.setBackground(Color.orange);
+                    case "gray", "grey" -> DrawPanel.setBackground(Color.gray);
+                    case "green" -> DrawPanel.setBackground(Color.green);
+                    case "cyan" -> DrawPanel.setBackground(Color.cyan);
+                    case "magenta" -> DrawPanel.setBackground(Color.magenta);
+                    case "pink" -> DrawPanel.setBackground(Color.pink);
+                    case "blood" -> {
+                        System.out.println("Hell is full. Blood is fuel.");
+                        DrawPanel.setBackground(new Color(136,8,8));
+                    }default -> System.out.println("No color found with prompt.");
+                }if(DrawPanel.getBackground()==DrawPanel.getGraphics().getColor())System.out.println("Warning! Color of background and polygons are the same.");
+            }
+            case "color", "c" ->{
+                System.out.println("Please enter a new polygon color: ");
+                String s=StringUtil.UserLineInput();
+                switch(s.toLowerCase(Locale.ROOT)){
+                    case "red" -> g.setColor(Color.RED);
+                    case "blue" -> g.setColor(Color.BLUE);
+                    case "black" -> g.setColor(Color.BLACK);
+                    case "white" -> g.setColor(Color.WHITE);
+                    case "yellow" -> g.setColor(Color.yellow);
+                    case "orange" -> g.setColor(Color.orange);
+                    case "gray", "grey" -> g.setColor(Color.gray);
+                    case "green" -> g.setColor(Color.green);
+                    case "cyan" -> g.setColor(Color.cyan);
+                    case "magenta" -> g.setColor(Color.magenta);
+                    case "pink" -> g.setColor(Color.pink);
+                    case "blood" -> {
+                        System.out.println("Hell is full. Blood is fuel.");
+                        g.setColor(new Color(136,8,8));
+                    }
+                }
+                DrawPanel.update(DrawPanel.getGraphics());
+                if(DrawPanel.getBackground()==DrawPanel.getGraphics().getColor())System.out.println("Warning! Color of background and polygons are the same.");
+            }
+            case "ConcaveDebug", "concave", "GEBUERJEIT" -> {
                 System.out.println("Toggled concave debug. Type again to toggle... again. Continuing in five seconds.");
                 Thread.sleep(5000);
                 DebugLogEnabled=false;
                 PhysicsLoop.ConcaveDebug=!PhysicsLoop.ConcaveDebug;
+            }case "FPS", "fps", "limitFPS", "limit" -> {
+                System.out.println("Please enter new minimum delay between frames (ms): ");
+                try {
+                    String s=StringUtil.UserLineInput();
+                    if(Integer.parseInt(s)!=0){
+                        System.out.println(Integer.parseInt(s)<10?"Warning! A delay this small ("+Integer.parseInt(s)+") way create rendering issues. Continuing in five seconds..."
+                                :"Continuing with new delay ("+Integer.parseInt(s)+") in five seconds...");
+                        Thread.sleep(5000);
+                        Period=Integer.parseInt(s);
+                        MainLoop_.cancel();
+                        Loop();
+                    }
+                }catch(NumberFormatException e){
+                    System.out.println("That's not a valid integer. Consider taking your first-grade math lessons again. Continuing in five seconds...");
+                    Thread.sleep(5000);
+                }
             }
             default -> System.out.println("Not a valid input. Try again. Or don't.");
         }

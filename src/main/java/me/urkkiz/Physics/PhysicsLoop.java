@@ -1,12 +1,13 @@
 package me.urkkiz.Physics;
 
-import me.urkkiz.MainWindow.MainLoop;
+import me.urkkiz.MainWindow.Init;
 import me.urkkiz.Shapes.PolygonHolder;
 import me.urkkiz.util.MathOperations;
-import me.urkkiz.util.TimeManager;
 import me.urkkiz.util.Transform;
 
-import static me.urkkiz.Physics.PhysicalPropertiesGlobal.GravitationalConstant;
+
+import static me.urkkiz.MainWindow.Init.frame;
+import static me.urkkiz.MainWindow.MainLoop.g;
 
 import java.awt.*;
 import java.util.ArrayList;
@@ -14,25 +15,27 @@ import java.util.ArrayList;
 public class PhysicsLoop {
     public static float Angles=0;
     public static boolean ConcaveDebug=false;
-    ArrayList<Boolean> Collisions = new ArrayList<>();
-    private static ArrayList<float[]> Velocities = new ArrayList<>();
-    public static float mult=1;
+    public static float[] Movement = new float[2];
+    public static int[] PrevMousePosition=new int[]{MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x,MouseInfo.getPointerInfo().getLocation().y-frame.getLocationOnScreen().y};
+    public static ArrayList<Polygon> Collisions=new ArrayList<>();
 
-    public static void physicsLoop(){
+    public static void physicsLoop() {
         for (int i = 0; i < PolygonHolder.shapes.size(); i++) {
-            if(ConcaveDebug) IsPolygonConcave(PolygonHolder.shapes.get(i));
-            int[] previousPos=new int[]{PolygonHolder.shapes.get(i).ypoints[0],PolygonHolder.shapes.get(i).xpoints[0]};
-            Transform.MovePolygon(PolygonHolder.shapes.get(i), 0, mult*(CalculateGravity(i) - PolygonHolder.shapes.get(i).ypoints[0]));
-            Transform.RotatePolygon(i, Angles,CalculateCenterOfGravity(PolygonHolder.shapes.get(i)));
-            //Detect if shape has not moved \/ (plz make dual point precision later)
-            if(PolygonHolder.shapes.get(i).xpoints[0]-previousPos[0]==0&&PolygonHolder.shapes.get(i).ypoints[1]-previousPos[1]==0) TimeManager.Timers.set(i,0F);
+            if(Init.IsMouseDown&&!Init.GeneralInfo.isVisible())MouseDragMove(i);
+            if (ConcaveDebug) IsPolygonConcave(PolygonHolder.shapes.get(i));
+            if(Init.PolygonsSelected.contains(i)) {
+                if(Movement[0]!=0||Movement[1]!=0)Transform.MovePolygon(i, Movement[0], Movement[1]);
+                if(Angles!=0)Transform.RotatePolygon(i, Angles, CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
+            }
             CheckAllCollisions(i);
+            Init.AmountOfCollisions.setText(Collisions.size()!=0?"Amount of collisions:"+Collisions.size():"Amount of collisions: 0");
         }
+        PrevMousePosition=new int[]{MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x,MouseInfo.getPointerInfo().getLocation().y-frame.getLocationOnScreen().y};
     }
-    public static float CalculateGravity(int TimerIndex){
-        return (MathOperations.Clamp((0 + (GravitationalConstant*(TimeManager.Timers.get(TimerIndex)*TimeManager.Timers.get(TimerIndex)))), 0, 420));
+    public static void MouseDragMove(int i){
+        Transform.MovePolygon(i,(MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x)-PrevMousePosition[0],(MouseInfo.getPointerInfo().getLocation().y-frame.getLocationOnScreen().y)-PrevMousePosition[1]);
     }
-    public static float[] CalculateCenterOfGravity(Polygon polygon){
+    public static float[] CalculatePseudoCenter(Polygon polygon){
         float[] res=new float[2];
         //average of points
         for (int i = 0; i < polygon.npoints; i++) {
@@ -42,8 +45,8 @@ public class PhysicsLoop {
         return new float[]{res[0] / polygon.npoints, res[1] / polygon.npoints};
     }
     //split into two functions due to the large usage of CalculateCenterOfGravity() for polygons -> Polygon as a parameter is easier
-    //just realized that this is not an ample way of calculating polygon centers. Visual center is needed instead. GDFGHIUHI!!!
-    public static float[] CalculateCenterOfGravityForFloatArray(float[][] arr){
+    //just realized that this is not an ample way of calculating polygon centers. Centroid is needed instead. GDFGHIUHI!!!
+    public static float[] CalculateCenterOfGravityForFloatMatrix(float[][] arr){
         float[] res=new float[2];
         //average of points
         for (int i = 0; i < arr[0].length; i++) {
@@ -56,28 +59,28 @@ public class PhysicsLoop {
         if((boolean)PolygonHolder.ConcaveHandler.get(i)[0]){
             for (Polygon p2:PolygonHolder.shapes) {
                 if(PolygonHolder.shapes.get(i)!=p2){
-                    float[][] CentersOfPolygons= new float[][]{CalculateCenterOfGravity(PolygonHolder.shapes.get(i)),CalculateCenterOfGravity(p2)};
-                    if(Math.abs(CentersOfPolygons[0][0]-CentersOfPolygons[1][0])<=PolygonHolder.Bounds.get(i)[0]&&Math.abs(CentersOfPolygons[0][1]-CentersOfPolygons[1][1])<=PolygonHolder.Bounds.get(i)[1])
-                        System.out.println(CollisionCheckConcave(PolygonHolder.shapes.get(i),p2));
+                    boolean collision=CollisionCheckConcave(PolygonHolder.shapes.get(i),p2);
+                    if(collision&&!Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.add(PolygonHolder.shapes.get(i));
+                    else if(!collision&&Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.remove(PolygonHolder.shapes.get(i));
                 }
             }
         }
         if(!(boolean)PolygonHolder.ConcaveHandler.get(i)[0]){
             for (Polygon p2:PolygonHolder.shapes) {
                 if(PolygonHolder.shapes.get(i)!=p2&&!(boolean)PolygonHolder.ConcaveHandler.get(PolygonHolder.shapes.indexOf(p2))[0]){
-                    float[][] CentersOfPolygons= new float[][]{CalculateCenterOfGravity(PolygonHolder.shapes.get(i)),CalculateCenterOfGravity(p2)};
-                    if(Math.abs(CentersOfPolygons[0][0]-CentersOfPolygons[1][0])<=2*Math.max(PolygonHolder.Bounds.get(i)[0], PolygonHolder.Bounds.get(PolygonHolder.shapes.indexOf(p2))[0])&&Math.abs(CentersOfPolygons[0][1]-CentersOfPolygons[1][1])<=2*Math.max(PolygonHolder.Bounds.get(i)[1], PolygonHolder.Bounds.get(PolygonHolder.shapes.indexOf(p2))[1]))
-                        System.out.println(CollisionCheckConcave(PolygonHolder.shapes.get(i),p2));
+                    boolean collision=CollisionCheckConvex(PolygonHolder.shapes.get(i),p2);
+                    if(collision&&!Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.add(PolygonHolder.shapes.get(i));
+                    else if(!collision&&Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.remove(PolygonHolder.shapes.get(i));
                 }else if ((boolean)PolygonHolder.ConcaveHandler.get(PolygonHolder.shapes.indexOf(p2))[0]){
-                    float[][] CentersOfPolygons= new float[][]{CalculateCenterOfGravity(PolygonHolder.shapes.get(i)),CalculateCenterOfGravity(p2)};
-                    if(Math.abs(CentersOfPolygons[0][0]-CentersOfPolygons[1][0])<=2*Math.max(PolygonHolder.Bounds.get(i)[0], PolygonHolder.Bounds.get(PolygonHolder.shapes.indexOf(p2))[0])&&Math.abs(CentersOfPolygons[0][1]-CentersOfPolygons[1][1])<=2*Math.max(PolygonHolder.Bounds.get(i)[1], PolygonHolder.Bounds.get(PolygonHolder.shapes.indexOf(p2))[1]))
-                        System.out.println(CollisionCheckConcave(PolygonHolder.shapes.get(i),p2));
+                    boolean collision=CollisionCheckConcave(PolygonHolder.shapes.get(i),p2);
+                    if(collision&&!Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.add(PolygonHolder.shapes.get(i));
+                    else if(!collision&&Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.remove(PolygonHolder.shapes.get(i));
                 }
             }
         }
     }
 
-    //a day later, i do not dare to question the gears of the following function; it is a miracle it works in the first place, and miracles are not to be tampered with.
+    //I do not dare to question the very gears of the following function; it is a miracle it works in the first place, and miracles are not to be tampered with.
     public static void IsPolygonConcave(Polygon polygon) {
         boolean isPolygonConcave=false;
         ArrayList<Integer[]> ConcaveEdgePoints = new ArrayList<>();
@@ -87,7 +90,7 @@ public class PhysicsLoop {
         }
         int Direction = (polygon.xpoints[0] - polygon.xpoints[1] < 0) ? -1 : 1;
         //any other polygon is concave, if the interior angle between any adjacent edges is more than 180deg
-        //the way i do this is by checking the dot product between the previous edge and the normal of the angle between next edge, so as to detect if the angle is more than 90deg (dotp<0)
+        //the way this is done by checking the dot product between the previous edge and the normal of the angle between next edge to detect if the angle is more than 90deg (dotp<0)
         float[] MinusOneEdgeVector;
         for (int i = 1; i < polygon.npoints - 1; i++) {
             MinusOneEdgeVector = Direction == 1 ? new float[]{polygon.xpoints[i] - polygon.xpoints[i - 1], polygon.ypoints[i] - polygon.ypoints[i - 1]}//could have used Vector<> but this might be more comprehensive
@@ -100,7 +103,7 @@ public class PhysicsLoop {
                         (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90)))
                 }));
                 //this maybe works.
-                MainLoop.g.draw(new Polygon(new int[]{polygon.xpoints[i + 1], (polygon.xpoints[i + 1]) + 4, (int) (Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.xpoints[i + 1]) + 3,
+                g.draw(new Polygon(new int[]{polygon.xpoints[i + 1], (polygon.xpoints[i + 1]) + 4, (int) (Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.xpoints[i + 1]) + 3,
                 (int) Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90)) + polygon.xpoints[i + 1])},
                 new int[]{polygon.ypoints[i + 1], polygon.ypoints[i + 1], (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.ypoints[i + 1],
                 (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.ypoints[i + 1]}, 4));
@@ -159,7 +162,12 @@ public class PhysicsLoop {
         //also works for convex polygons, but why would you want to do that? this collision detection algorithm is much more resource-intensive.
         for (int i = 0; i < 2; i++) {
             for (int j = 0; j < p1.npoints; j++) {
-                if(CheckIfPointIsInsidePolygon(new int[]{p1.xpoints[j], p1.ypoints[j]},p2)) return true;
+                if(CheckIfPointIsInsidePolygon(new int[]{p1.xpoints[j], p1.ypoints[j]},p2)){
+                    //Collisions.set(PolygonHolder.shapes.indexOf(i==0?p1:p2),true);
+                    //note to self: when calculating point polygon depth, MasterIndex must be that of p1
+                    //System.out.println(MathOperations.GetPenetrationDepthOfPointOnPolygon(new int[]{p1.xpoints[j], p1.ypoints[j]},PolygonHolder.shapes.indexOf(p1),p2));
+                    return true;
+                }
             }
             Polygon temp = p1;
             p1=p2;
@@ -169,7 +177,7 @@ public class PhysicsLoop {
         /*
         the problem with this algorithm is, for example, if you have two very long triangles perpendicular to each other
         intersecting each other at their visual center, this will not detect a collision, since none of the points of either polygons are inside the other polygon.
-        in physics simulation, this fortunately only happens with objects with a very high velocity / with a very low framerate.
+        in physics simulation, this fortunately only happens with objects with a very high velocity / with a very low fps.
          */
     }
     /*

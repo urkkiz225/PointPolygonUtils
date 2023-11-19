@@ -4,21 +4,24 @@ import me.urkkiz.Physics.PhysicsLoop;
 import me.urkkiz.Shapes.PolygonHolder;
 
 import java.awt.*;
+import java.util.ArrayList;
 
 public class Transform {
     public static double[][] AccurateCumulativeDoubleOverFlows = new double[3][2];
+    public static ArrayList<int[][]> DeltaPositions=new ArrayList<>();
     //index 0 : position | index 1 : rotation | index 2 : scale (for rounding errors)
-    public static void MovePolygon(Polygon polygon, float x, float y){
-        int[][] coordinates=new int[][]{polygon.xpoints, polygon.ypoints};
+    public static void MovePolygon(int PolygonIndex, float x, float y){
+        Polygon polygon=PolygonHolder.shapes.get(PolygonIndex);
+        DeltaPositions.set(PolygonIndex, new int[][]{polygon.xpoints, polygon.ypoints});
         // \/- obsolete - JFrame has a translate() method for moving objects. (works nonetheless, but this might be faster so leaving it here)
         /*
-        for(int i = 0; i < polygon.npoints; i++) {
-            coordinates[0][i] += (int) ((coordinates[0][i]+x)-coordinates[0][i]);
-            coordinates[1][i] += (int) ((coordinates[1][i]+y)-coordinates[1][i]);
-            //coordinates[1][i]= coordinates[1][i]+Math.round((coordinates[1][i]+y)-coordinates[1][i]);
+        for(int PolygonIndex = 0; PolygonIndex < polygon.npoints; PolygonIndex++) {
+            coordinates[0][PolygonIndex] += (int) ((coordinates[0][PolygonIndex]+x)-coordinates[0][PolygonIndex]);
+            coordinates[1][PolygonIndex] += (int) ((coordinates[1][PolygonIndex]+y)-coordinates[1][PolygonIndex]);
+            //coordinates[1][PolygonIndex]= coordinates[1][PolygonIndex]+Math.round((coordinates[1][PolygonIndex]+y)-coordinates[1][PolygonIndex]);
         }
         */
-        polygon.translate((int) ((PhysicsLoop.CalculateCenterOfGravity(polygon)[0] +x)-PhysicsLoop.CalculateCenterOfGravity(polygon)[0]), (int) ((int) (PhysicsLoop.CalculateCenterOfGravity(polygon)[1]+y)-PhysicsLoop.CalculateCenterOfGravity(polygon)[1]));
+        polygon.translate((int) ((PhysicsLoop.CalculatePseudoCenter(polygon)[0] +x)-PhysicsLoop.CalculatePseudoCenter(polygon)[0]), (int) ((int) (PhysicsLoop.CalculatePseudoCenter(polygon)[1]+y)-PhysicsLoop.CalculatePseudoCenter(polygon)[1]));
     }
     public static void RotatePolygon(int PolygonIndex, float Angles, float[] pivot) {
         /*rounding errors must be accounted for, as java awts custom polygons can not be instantiated with double/float accuracy.
@@ -40,16 +43,8 @@ public class Transform {
                 AccurateCumulativeDoubleOverFlows[1][1] = (AccurateCumulativeDoubleOverFlows[1][1]-xyCumulativeOverFlow[1]);
             }
             else AccurateCumulativeDoubleOverFlows[1][1] += xy[1] - (Math.round(xy[1])); //POSSIBLE ERROR HERE!!!1! FIX LATER PLZ!!!!!!!!
-
-            //MathOperations.AccurateCumulativeDoubleOverFlows[1][0] = Math.round(xy[0] - (int) (Math.round(xy[0])) == 1 ? (1 - (xy[0] - (int) (Math.round(xy[0])))) : MathOperations.AccurateCumulativeDoubleOverFlows[1][0] + xy[0] - (int) (Math.round(xy[0])));
-            //MathOperations.AccurateCumulativeDoubleOverFlows[1][1] = Math.round(xy[1] - (int) (Math.round(xy[1])) == 1 ? 1 - (xy[1] - (int) (Math.round(xy[1]))) : MathOperations.AccurateCumulativeDoubleOverFlows[1][1] + xy[1] - (int) (Math.round(xy[1])));
-            //System.out.println(Arrays.deepToString(AccurateCumulativeDoubleOverFlows));
-            // ^ checks if the values of both components are ready for rounding, otherwise adds the result of the iteration to the master sum.
             PolygonHolder.shapes.get(PolygonIndex).xpoints[i] = (int) (Math.round(xy[0])) + (int)xyCumulativeOverFlow[0];
             PolygonHolder.shapes.get(PolygonIndex).ypoints[i] = (int) (Math.round(xy[1])) + (int)xyCumulativeOverFlow[1];
         }
-    }
-    public static void ScalePolygon(Polygon polygon, float x, float y, int[] pivot){
-
     }
 }
