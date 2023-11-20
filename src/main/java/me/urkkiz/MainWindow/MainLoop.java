@@ -29,6 +29,7 @@ public class MainLoop extends Init {
     public static int Period=18;
     public static boolean DrawIndexes=false;
     private static boolean PouringSoulIntoClairTheLune=false;
+    private static int ThePianistInteger=0;
 
     public static void Loop() {
         g.setColor(Color.red);
@@ -128,156 +129,145 @@ public class MainLoop extends Init {
                 +"\n\n\n");
     }
     public static void InputCases() throws InterruptedException{
-        System.out.println("Awaiting new input line...");
-        String UserInput = StringUtil.UserLineInput();
-        //checking is case-sensitive purely due to comedic purposes.
-        switch(UserInput){
-            case "toggle the got damn debugs!", "debug", "enable debug plz", "TOGGLE THE FUCKING DEBUG YOU FUCKING IDIOTIC MACHINE!!! RAAAHHH!", "Hello, good sir. Do you mind apprising me with all the knowledge of mankind?", "give me debug. give it to me!", "beep boop. beep?", "Those who are wayward in spirit will gain understanding; those who complain will accept instruction." -> {
-                System.out.println("You have enabled debug logs. It can not be turned off. Have fun.");
-                for (int i = 8; i != -1; i--) {
-                    System.out.print("\rApproaching hell. ETA: " + i + "s...\r");
-                    Thread.sleep(1250);
-                }
-                DebugLogEnabled=true;
-            } case "EXIT", "/E", "guh bye" -> {
-                System.out.println("guh bye.");
-                for (int i = 3; i != -1; i--) {
-                    System.out.print("Exiting in " + i + "s...\r");
-                    Thread.sleep(1000);
-                }
-                System.exit(0);
-            }case "Sing me a song", "Play for me", "Play me the most beautiful piano piece" -> {
-                try {
-                    InputStream audioSrc = Init.class.getClassLoader().getResourceAsStream("ClairDeLune.wav");
-                    InputStream bufferedIn = new BufferedInputStream(audioSrc);
-                    AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
-                    Clip clip=AudioSystem.getClip();
-                    if (!PouringSoulIntoClairTheLune) {
-                        clip.open(audioInputStream);
-                        clip.loop(Clip.LOOP_CONTINUOUSLY);
-                        PouringSoulIntoClairTheLune=true;
-                        System.out.println("Enjoy this majestic piece of history. Do NOT type prompts again to toggle. Please.");
-                    }else{
-                        clip.stop();
-                        clip.close();
-                        System.out.println("Did you just... Interrupt me?");
-                        Thread.sleep(4000);
-                        System.out.println("This is the rudest thing that has happened in many centuries. No on has dared to disrespect me like this.");
-                        Thread.sleep(4000);
-                        System.out.println("You know what? Just for the disrespect, I'm going to make you quit.");
-                        Thread.sleep(4000);
-                        System.out.println("...");
-                        Thread.sleep(4000);
-                        System.out.println("...");
-                        Thread.sleep(4000);
-                        System.out.println("...");
-                        Thread.sleep(4000);
-                        System.out.println("...");
-                        Thread.sleep(4000);
-                        System.out.println("...");
-                        Thread.sleep(4000);
-                        System.out.println("...");
-                        Thread.sleep(2000);
-                        System.out.println("Good bye. May you woes be many, and your days lived few.");
-                        for (int i = 3; i != -1; i--) {
-                            System.out.print("Exiting in " + i + "s...\r");
-                            Thread.sleep(1500);
-                        }
-                        System.exit(0);
+        if(PolygonHolder.shapes.size()!=0) {
+            System.out.println("Awaiting new input line...");
+            String UserInput = StringUtil.UserLineInput();
+            //checking is case-sensitive purely due to comedic purposes.
+            switch (UserInput) {
+                case "toggle the got damn debugs!", "debug", "enable debug plz", "TOGGLE THE FUCKING DEBUG YOU FUCKING IDIOTIC MACHINE!!! RAAAHHH!", "Hello, good sir. Do you mind apprising me with all the knowledge of mankind?", "give me debug. give it to me!", "beep boop. beep?", "Those who are wayward in spirit will gain understanding; those who complain will accept instruction." -> {
+                    System.out.println("You have enabled debug logs. It can not be turned off. Have fun.");
+                    for (int i = 8; i != -1; i--) {
+                        System.out.print("\rApproaching hell. ETA: " + i + "s...\r");
+                        Thread.sleep(1250);
                     }
-                }catch(UnsupportedAudioFileException | LineUnavailableException e){
-                    System.out.println("Something went terribly wrong. I really do not know what, and I have a headache. Continuing in five seconds. " + e);
-                } catch(IOException e){
-                    e.printStackTrace();
+                    DebugLogEnabled = true;
                 }
-            }
-            case "background", "bgc" ->{
-                System.out.println("Please enter a new background color: ");
-                String s=StringUtil.UserLineInput();
-                switch(s.toLowerCase(Locale.ROOT)){
-                    case "red" -> DrawPanel.setBackground(Color.red);
-                    case "blue" -> DrawPanel.setBackground(Color.blue);
-                    case "black" -> DrawPanel.setBackground(Color.black);
-                    case "white" -> DrawPanel.setBackground(Color.white);
-                    case "yellow" -> DrawPanel.setBackground(Color.yellow);
-                    case "orange" -> DrawPanel.setBackground(Color.orange);
-                    case "gray", "grey" -> DrawPanel.setBackground(Color.gray);
-                    case "green" -> DrawPanel.setBackground(Color.green);
-                    case "cyan" -> DrawPanel.setBackground(Color.cyan);
-                    case "magenta" -> DrawPanel.setBackground(Color.magenta);
-                    case "pink" -> DrawPanel.setBackground(Color.pink);
-                    case "gold"-> DrawPanel.setBackground(new Color(212, 175, 55));
-                    case "blood" -> {
-                        System.out.println("Hell is full. Blood is fuel.");
-                        DrawPanel.setBackground(new Color(136,8,8));
-                    }default -> System.out.println("No color found with prompt.");
-                }if(Objects.equals(DrawPanel.getBackground(), g.getColor()))System.out.println("Warning! Color of background and polygons are the same.");
-            }
-            case "color", "c" ->{
-                System.out.println("Please enter a new polygon color: ");
-                String s=StringUtil.UserLineInput();
-                switch(s.toLowerCase(Locale.ROOT)){
-                    case "red" -> g.setColor(Color.red);
-                    case "blue" -> g.setColor(Color.blue);
-                    case "black" -> g.setColor(Color.black);
-                    case "white" -> g.setColor(Color.white);
-                    case "yellow" -> g.setColor(Color.yellow);
-                    case "orange" -> g.setColor(Color.orange);
-                    case "gray", "grey" -> g.setColor(Color.gray);
-                    case "green" -> g.setColor(Color.green);
-                    case "cyan" -> g.setColor(Color.cyan);
-                    case "magenta" -> g.setColor(Color.magenta);
-                    case "pink" -> g.setColor(Color.pink);
-                    case "gold" -> g.setColor(new Color(212, 175, 55));
-                    case "blood" -> {
-                        System.out.println("Hell is full. Blood is fuel.");
-                        g.setColor(new Color(136,8,8));
-                    }default -> System.out.println("No color found with prompt.");
+                case "EXIT", "/E", "guh bye" -> {
+                    System.out.println("guh bye.");
+                    for (int i = 3; i != -1; i--) {
+                        System.out.print("Exiting in " + i + "s...\r");
+                        Thread.sleep(1000);
+                    }
+                    System.exit(0);
                 }
-                DrawPanel.update(DrawPanel.getGraphics());
-                if(Objects.equals(DrawPanel.getBackground(),g.getColor()))System.out.println("Warning! Color of background and polygons are the same.");
-            }
-            case "ConcaveDebug", "concave", "GEBUERJEIT" -> {
-                System.out.println("Toggled concave debug. Type again to toggle... again. Continuing in five seconds.");
-                Thread.sleep(5000);
-                DebugLogEnabled=false;
-                PhysicsLoop.ConcaveDebug=!PhysicsLoop.ConcaveDebug;
-            }case "FPS", "fps", "limitFPS", "limit" -> {
-                System.out.println("Please enter new minimum delay between frames (ms): ");
-                try {
-                    String s=StringUtil.UserLineInput();
-                    if(Integer.parseInt(s)!=0){
-                        System.out.println(Integer.parseInt(s)<10?"Warning! A delay this small ("+Integer.parseInt(s)+") way create rendering issues. Continuing in five seconds..."
-                                :"Continuing with new delay ("+Integer.parseInt(s)+") in five seconds...");
-                        Thread.sleep(5000);
-                        Period=Integer.parseInt(s);
-                        MainLoop_.cancel();
-                        Loop();
-                    }else System.out.println("Delay can not be 0");
-                }catch(NumberFormatException e){
-                    System.out.println("That's not a valid integer. Consider taking your first-grade math lessons again. Continuing in five seconds...");
+                case "Sing me a song", "Play for me", "Play me the most beautiful piano piece" -> {
+                    try {
+                        InputStream audioSrc = Init.class.getClassLoader().getResourceAsStream("ClairDeLune.wav");
+                        InputStream bufferedIn = new BufferedInputStream(audioSrc);
+                        AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
+                        Clip clip = AudioSystem.getClip();
+                        if(ThePianistInteger==0){
+                        }
+                        if (!PouringSoulIntoClairTheLune) {
+                            clip.open(audioInputStream);
+                            clip.loop(Clip.LOOP_CONTINUOUSLY);
+                            PouringSoulIntoClairTheLune = true;
+                            System.out.println("Enjoy this majestic piece of history. Do NOT type prompts again to toggle. Please.");
+                        } else {
+                            clip.stop();
+                            clip.close();
+                            System.out.println("Did you just... Interrupt me?");
+                            Thread.sleep(4000);
+                            System.out.println("This is the rudest thing that has happened in many centuries. No on has dared to disrespect me like this.");
+                            Thread.sleep(4000);
+                            System.out.println("You know what? Just for the disrespect, I'm going to make you quit.");
+                            for (int i = 0; i != 4; i++) {
+                                Thread.sleep(4000);
+                                System.out.println("...");
+                            }
+                            System.out.println("Good bye. May you woes be many, and your days lived few.");
+                            for (int i = 3; i != -1; i--) {
+                                System.out.print("Exiting in " + i + "s...\r");
+                                Thread.sleep(1500);
+                            }
+                            System.exit(0);
+                        }
+                    } catch (UnsupportedAudioFileException | LineUnavailableException e) {
+                        System.out.println("Something went terribly wrong. I really do not know what, and I have a headache. Continuing in five seconds. " + e);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+                case "background", "bgc" -> {
+                    System.out.println("Please enter a new background color: ");
+                    String s = StringUtil.UserLineInput();
+                    switch (s.toLowerCase(Locale.ROOT)) {
+                        case "red" -> DrawPanel.setBackground(Color.red);
+                        case "blue" -> DrawPanel.setBackground(Color.blue);
+                        case "black" -> DrawPanel.setBackground(Color.black);
+                        case "white" -> DrawPanel.setBackground(Color.white);
+                        case "yellow" -> DrawPanel.setBackground(Color.yellow);
+                        case "orange" -> DrawPanel.setBackground(Color.orange);
+                        case "gray", "grey" -> DrawPanel.setBackground(Color.gray);
+                        case "green" -> DrawPanel.setBackground(Color.green);
+                        case "cyan" -> DrawPanel.setBackground(Color.cyan);
+                        case "magenta" -> DrawPanel.setBackground(Color.magenta);
+                        case "pink" -> DrawPanel.setBackground(Color.pink);
+                        case "gold" -> DrawPanel.setBackground(new Color(212, 175, 55));
+                        case "blood" -> {
+                            System.out.println("Hell is full. Blood is fuel.");
+                            DrawPanel.setBackground(new Color(136, 8, 8));
+                        }
+                        default -> System.out.println("No color found with prompt.");
+                    }
+                    if (Objects.equals(DrawPanel.getBackground(), g.getColor()))
+                        System.out.println("Warning! Color of background and polygons are the same.");
+                }
+                case "color", "c" -> {
+                    System.out.println("Please enter a new polygon color: ");
+                    String s = StringUtil.UserLineInput();
+                    switch (s.toLowerCase(Locale.ROOT)) {
+                        case "red" -> g.setColor(Color.red);
+                        case "blue" -> g.setColor(Color.blue);
+                        case "black" -> g.setColor(Color.black);
+                        case "white" -> g.setColor(Color.white);
+                        case "yellow" -> g.setColor(Color.yellow);
+                        case "orange" -> g.setColor(Color.orange);
+                        case "gray", "grey" -> g.setColor(Color.gray);
+                        case "green" -> g.setColor(Color.green);
+                        case "cyan" -> g.setColor(Color.cyan);
+                        case "magenta" -> g.setColor(Color.magenta);
+                        case "pink" -> g.setColor(Color.pink);
+                        case "gold" -> g.setColor(new Color(212, 175, 55));
+                        case "blood" -> {
+                            System.out.println("Hell is full. Blood is fuel.");
+                            g.setColor(new Color(136, 8, 8));
+                        }
+                        default -> System.out.println("No color found with prompt.");
+                    }
+                    DrawPanel.update(DrawPanel.getGraphics());
+                    if (Objects.equals(DrawPanel.getBackground(), g.getColor()))
+                        System.out.println("Warning! Color of background and polygons are the same.");
+                }
+                case "ConcaveDebug", "concave", "GEBUERJEIT" -> {
+                    System.out.println("Toggled concave debug. Type again to toggle... again. Continuing in five seconds.");
                     Thread.sleep(5000);
+                    DebugLogEnabled = false;
+                    PhysicsLoop.ConcaveDebug = !PhysicsLoop.ConcaveDebug;
                 }
-            }case "indexes", "index", "polygonIndex"->{
-                DrawIndexes=!DrawIndexes;
-                System.out.println(!DrawIndexes?"Index drawing disabled":"Index drawing enabled");
+                case "FPS", "fps", "limitFPS", "limit" -> {
+                    System.out.println("Please enter new minimum delay between frames (ms): ");
+                    try {
+                        String s = StringUtil.UserLineInput();
+                        if (Integer.parseInt(s) != 0) {
+                            System.out.println(Integer.parseInt(s) < 10 ? "Warning! A delay this small (" + Integer.parseInt(s) + ") way create rendering issues. Continuing in five seconds..."
+                                    : "Continuing with new delay (" + Integer.parseInt(s) + ") in five seconds...");
+                            Thread.sleep(5000);
+                            Period = Integer.parseInt(s);
+                            MainLoop_.cancel();
+                            Loop();
+                        } else System.out.println("Delay can not be 0");
+                    } catch (NumberFormatException e) {
+                        System.out.println("That's not a valid integer. Consider taking your first-grade math lessons again. Continuing in five seconds...");
+                        Thread.sleep(5000);
+                    }
+                }
+                case "indexes", "index", "polygonIndex" -> {
+                    DrawIndexes = !DrawIndexes;
+                    System.out.println(!DrawIndexes ? "Index drawing disabled" : "Index drawing enabled");
+                }
+                default -> System.out.println("Not a valid input. Try again. Or don't.");
             }
-            default -> System.out.println("Not a valid input. Try again. Or don't.");
-        }
-    }
-    //only certain types of wav files are supported.
-    private static AudioInputStream convertToPCM(AudioInputStream audioInputStream)
-    {
-        AudioFormat m_format = audioInputStream.getFormat();
-        if ((m_format.getEncoding() != AudioFormat.Encoding.PCM_SIGNED) &&
-                (m_format.getEncoding() != AudioFormat.Encoding.PCM_UNSIGNED))
-        {
-            AudioFormat targetFormat = new AudioFormat(AudioFormat.Encoding.PCM_SIGNED,
-                    m_format.getSampleRate(), 16,
-                    m_format.getChannels(), m_format.getChannels() * 2,
-                    m_format.getSampleRate(), m_format.isBigEndian());
-            audioInputStream = AudioSystem.getAudioInputStream(targetFormat, audioInputStream);
-        }
-        return audioInputStream;
+        }else System.out.println("Please push a polygon first. I have gotten enough ArrayIndexOutOfBoundsExceptions.");
     }
 }
