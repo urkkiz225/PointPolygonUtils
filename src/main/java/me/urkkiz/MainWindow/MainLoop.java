@@ -8,7 +8,6 @@ import me.urkkiz.util.TimeManager;
 import me.urkkiz.util.Transform;
 
 import javax.sound.sampled.*;
-import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
@@ -30,9 +29,9 @@ public class MainLoop extends Init {
     public static boolean DrawIndexes=false;
     private static boolean PouringSoulIntoClairTheLune=false;
     private static int ThePianistInteger=0;
+    private static boolean SeeingRainbows =false;
 
     public static void Loop() {
-        g.setColor(Color.red);
         MainLoop_ = new TimerTask() {
             @Override
             public void run() {
@@ -52,6 +51,7 @@ public class MainLoop extends Init {
 
     public static void Render() {
         DrawPanel.paintAll(g);
+        if(SeeingRainbows) RainbowsAndCupcakes();
         for (int i=0; i< PolygonHolder.shapes.size();i++) {
             g.fill(PolygonHolder.shapes.get(i));
             if(DrawIndexes){
@@ -128,10 +128,16 @@ public class MainLoop extends Init {
                 +"\n Transform: \n"+"     Accurate cumulative float overflow: "+Arrays.deepToString(Transform.AccurateCumulativeDoubleOverFlows)
                 +"\n\n\n");
     }
+    public static void RainbowsAndCupcakes(){
+        g.setColor(new Color((int) (127*(Math.sin(TimeManager.MasterTime)+1)), (int) (127*(Math.sin(TimeManager.MasterTime*0.25f)+1)), (int) (127*(Math.sin(TimeManager.MasterTime*0.6)+1))));
+        DrawPanel.setBackground(new Color((int) (127*(Math.sin(-TimeManager.MasterTime)+1)), (int) (127*(Math.sin(-TimeManager.MasterTime*0.25f)+1)), (int) (127*(Math.sin(-TimeManager.MasterTime*0.6)+1))));
+    }
     public static void InputCases() throws InterruptedException{
         if(PolygonHolder.shapes.size()!=0) {
+            PhysicsLoop.Movement=new float[]{0,0};
+            PhysicsLoop.Degrees=0;
             System.out.println("Awaiting new input line...");
-            String UserInput = StringUtil.UserLineInput();
+            String UserInput = StringUtil.UserLineInput("");
             //checking is case-sensitive purely due to comedic purposes.
             switch (UserInput) {
                 case "toggle the got damn debugs!", "debug", "enable debug plz", "TOGGLE THE FUCKING DEBUG YOU FUCKING IDIOTIC MACHINE!!! RAAAHHH!", "Hello, good sir. Do you mind apprising me with all the knowledge of mankind?", "give me debug. give it to me!", "beep boop. beep?", "Those who are wayward in spirit will gain understanding; those who complain will accept instruction." -> {
@@ -175,7 +181,7 @@ public class MainLoop extends Init {
                                 Thread.sleep(4000);
                                 System.out.println("...");
                             }
-                            System.out.println("Good bye. May you woes be many, and your days lived few.");
+                            System.out.println("Good bye. May your woes be many, and your days few.");
                             for (int i = 3; i != -1; i--) {
                                 System.out.print("Exiting in " + i + "s...\r");
                                 Thread.sleep(1500);
@@ -190,7 +196,8 @@ public class MainLoop extends Init {
                 }
                 case "background", "bgc" -> {
                     System.out.println("Please enter a new background color: ");
-                    String s = StringUtil.UserLineInput();
+                    Color c=DrawPanel.getBackground();
+                    String s = StringUtil.UserLineInput("");
                     switch (s.toLowerCase(Locale.ROOT)) {
                         case "red" -> DrawPanel.setBackground(Color.red);
                         case "blue" -> DrawPanel.setBackground(Color.blue);
@@ -208,14 +215,30 @@ public class MainLoop extends Init {
                             System.out.println("Hell is full. Blood is fuel.");
                             DrawPanel.setBackground(new Color(136, 8, 8));
                         }
-                        default -> System.out.println("No color found with prompt.");
+                        case "custom" ->{
+                            try{
+                                Color color = (new Color(Integer.parseInt(StringUtil.UserLineInput("Type value R")),Integer.parseInt(StringUtil.UserLineInput("Type value G")),Integer.parseInt(StringUtil.UserLineInput("Type value B"))));
+                                if(color.getRed()<256&&color.getGreen()<256&&color.getBlue()<256) {
+                                    DrawPanel.setBackground(color);
+                                    System.out.println("Color set. ("+color+")");
+                                }
+                                else System.out.println("Not a valid color. R, G and B must be in range of 0,255");
+                            }catch( NumberFormatException e){
+                                System.out.println("Not an integer.");
+                            }
+                        }
+                        default -> System.out.println("No color found with prompt. To set a custom color, type \"color\"");
                     }
                     if (Objects.equals(DrawPanel.getBackground(), g.getColor()))
                         System.out.println("Warning! Color of background and polygons are the same.");
+                    if(!Objects.equals(DrawPanel.getBackground(),c)){
+                        SeeingRainbows =false;
+                    }
                 }
                 case "color", "c" -> {
                     System.out.println("Please enter a new polygon color: ");
-                    String s = StringUtil.UserLineInput();
+                    Color c=g.getColor();
+                    String s = StringUtil.UserLineInput("");
                     switch (s.toLowerCase(Locale.ROOT)) {
                         case "red" -> g.setColor(Color.red);
                         case "blue" -> g.setColor(Color.blue);
@@ -233,11 +256,26 @@ public class MainLoop extends Init {
                             System.out.println("Hell is full. Blood is fuel.");
                             g.setColor(new Color(136, 8, 8));
                         }
-                        default -> System.out.println("No color found with prompt.");
+                        case "custom" ->{
+                            try{
+                                Color color = (new Color(Integer.parseInt(StringUtil.UserLineInput("Type value R")),Integer.parseInt(StringUtil.UserLineInput("Type value G")),Integer.parseInt(StringUtil.UserLineInput("Type value B"))));
+                                if(color.getRed()<256&&color.getGreen()<256&&color.getBlue()<256){
+                                    g.setColor(color);
+                                    System.out.println("Color set. ("+color+")");
+                                }
+                                else System.out.println("Not a valid color. R, G and B must be in range of 0,255");
+                            }catch( NumberFormatException e){
+                                System.out.println("Not an integer.");
+                            }
+                        }
+                        default -> System.out.println("No color found with prompt. To set a custom color, type \"color\"");
                     }
                     DrawPanel.update(DrawPanel.getGraphics());
                     if (Objects.equals(DrawPanel.getBackground(), g.getColor()))
                         System.out.println("Warning! Color of background and polygons are the same.");
+                    if(!Objects.equals(g.getColor(),c)){
+                        SeeingRainbows =false;
+                    }
                 }
                 case "ConcaveDebug", "concave", "GEBUERJEIT" -> {
                     System.out.println("Toggled concave debug. Type again to toggle... again. Continuing in five seconds.");
@@ -245,10 +283,10 @@ public class MainLoop extends Init {
                     DebugLogEnabled = false;
                     PhysicsLoop.ConcaveDebug = !PhysicsLoop.ConcaveDebug;
                 }
-                case "FPS", "fps", "limitFPS", "limit" -> {
+                case "FPS", "fps", "limitFPS", "limit", "delay" -> {
                     System.out.println("Please enter new minimum delay between frames (ms): ");
                     try {
-                        String s = StringUtil.UserLineInput();
+                        String s = StringUtil.UserLineInput("");
                         if (Integer.parseInt(s) != 0) {
                             System.out.println(Integer.parseInt(s) < 10 ? "Warning! A delay this small (" + Integer.parseInt(s) + ") way create rendering issues. Continuing in five seconds..."
                                     : "Continuing with new delay (" + Integer.parseInt(s) + ") in five seconds...");
@@ -265,6 +303,9 @@ public class MainLoop extends Init {
                 case "indexes", "index", "polygonIndex" -> {
                     DrawIndexes = !DrawIndexes;
                     System.out.println(!DrawIndexes ? "Index drawing disabled" : "Index drawing enabled");
+                }case "rainbow", "lsd" -> {
+                    System.out.println("Warning! This slows down rendering and creates rendering issues.");
+                    SeeingRainbows =!SeeingRainbows;
                 }
                 default -> System.out.println("Not a valid input. Try again. Or don't.");
             }

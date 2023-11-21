@@ -3,6 +3,7 @@ package me.urkkiz.Actions;
 import me.urkkiz.MainWindow.Init;
 import me.urkkiz.MainWindow.MainLoop;
 import me.urkkiz.Physics.PhysicsLoop;
+import me.urkkiz.Shapes.PolygonHolder;
 
 import java.awt.*;
 import java.awt.event.KeyEvent;
@@ -13,6 +14,7 @@ import java.util.Random;
 
 public class WindowRuntime{
     public static boolean IsShiftDown=false;
+    public static float scale=1;
     //this is a prime example of a forgotten class...
     public static void GeneralInformation(boolean Toggle, String SetText){
         Init.GeneralInfo.setVisible(Toggle);
@@ -36,6 +38,20 @@ public class WindowRuntime{
             if(e.getKeyCode()==KeyEvent.VK_D) PhysicsLoop.Movement[0]=5;
             if (e.getKeyCode()==KeyEvent.VK_G) GeneralInformation(!Init.GeneralInfo.isVisible(), Init.GeneralInfo.getText());
             if(e.getKeyCode()==KeyEvent.VK_SHIFT) IsShiftDown=true;
+            if(e.getKeyCode()==KeyEvent.VK_A&&e.isControlDown()){
+                if(MainLoop.PolygonsSelected.size()!=PolygonHolder.shapes.size()) {
+                    MainLoop.PolygonsSelected.clear();
+                    System.out.println("All polygons selected.");
+                    for (int i = 0; i < PolygonHolder.shapes.size(); i++) {
+                        MainLoop.PolygonsSelected.add(i);
+                        MainLoop.SelectedPolygon.setText("Selected Polygons: " + MainLoop.PolygonsSelected);
+                    }
+                }else {
+                    MainLoop.PolygonsSelected.clear();
+                    System.out.println("All polygons deselected.");
+                    MainLoop.SelectedPolygon.setText("Selected Polygons: " + "None");
+                }
+            }
             if(e.getKeyCode()==KeyEvent.VK_P) {
                 try {
                     System.out.print("\r");
@@ -62,6 +78,7 @@ public class WindowRuntime{
         @Override
         public void mouseWheelMoved(MouseWheelEvent e) {
             MainLoop.g.scale(1+(e.getPreciseWheelRotation()*0.01f),1+(e.getPreciseWheelRotation()*0.01f));
+            scale = (float) (1+(e.getPreciseWheelRotation()*0.01f));
             ((Graphics2D)MainLoop.DrawPanel.getGraphics()).scale(1+(e.getPreciseWheelRotation()*0.01f),1+(e.getPreciseWheelRotation()*0.01f));
             //Init.DrawPanel.setBounds((int) (Init.WIDTH*(1+(e.getPreciseWheelRotation())*0.01f)), (int) (Init.HEIGHT*(1+(e.getPreciseWheelRotation()*0.01f))));
         }

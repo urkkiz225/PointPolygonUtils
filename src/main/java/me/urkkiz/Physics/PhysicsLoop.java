@@ -27,11 +27,11 @@ public class PhysicsLoop {
             if (ConcaveDebug) IsPolygonConcave(PolygonHolder.shapes.get(i));
             if(Init.PolygonsSelected.contains(i)) {
                 if(Movement[0]!=0||Movement[1]!=0){
-                    Transform.MovePolygon(i, Movement[0]*(18f / MainLoop.Period), Movement[1] * (18f / MainLoop.Period));
+                    Transform.MovePolygon(i, Movement[0]*(MainLoop.Period/18f), Movement[1] * (MainLoop.Period)/18f);
                     PseudoCenters.set(i,CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
                 }
                 if(Degrees !=0){
-                    Transform.RotatePolygon(i, Degrees*(18f / MainLoop.Period), CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
+                    Transform.RotatePolygon(i, Degrees*(MainLoop.Period/18f), CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
                     PseudoCenters.set(i,CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
                 }
             }
