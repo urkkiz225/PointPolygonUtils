@@ -70,7 +70,7 @@ public class PhysicsLoop {
                 if(PolygonHolder.shapes.get(i)!=p2){
                     boolean collision=CollisionCheckConcave(PolygonHolder.shapes.get(i),p2);
                     if(collision&&!Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.add(PolygonHolder.shapes.get(i));
-                    else if(!collision&&Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.remove(PolygonHolder.shapes.get(i));
+                    else if(!collision)Collisions.remove(PolygonHolder.shapes.get(i));
                 }
             }
         }
@@ -79,11 +79,11 @@ public class PhysicsLoop {
                 if(PolygonHolder.shapes.get(i)!=p2&&!(boolean)PolygonHolder.ConcaveHandler.get(PolygonHolder.shapes.indexOf(p2))[0]){
                     boolean collision=CollisionCheckConvex(PolygonHolder.shapes.get(i),p2);
                     if(collision&&!Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.add(PolygonHolder.shapes.get(i));
-                    else if(!collision&&Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.remove(PolygonHolder.shapes.get(i));
+                    else if(!collision)Collisions.remove(PolygonHolder.shapes.get(i));
                 }else if ((boolean)PolygonHolder.ConcaveHandler.get(PolygonHolder.shapes.indexOf(p2))[0]){
                     boolean collision=CollisionCheckConcave(PolygonHolder.shapes.get(i),p2);
                     if(collision&&!Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.add(PolygonHolder.shapes.get(i));
-                    else if(!collision&&Collisions.contains(PolygonHolder.shapes.get(i)))Collisions.remove(PolygonHolder.shapes.get(i));
+                    else if(!collision)Collisions.remove(PolygonHolder.shapes.get(i));
                 }
             }
         }
@@ -95,7 +95,7 @@ public class PhysicsLoop {
         boolean isPolygonConcave=false;
         ArrayList<Integer[]> ConcaveEdgePoints = new ArrayList<>();
         if (polygon.npoints == 3) {
-            PolygonHolder.ConcaveHandler.add(new Object[]{false}); //if the polygon only has 3 points, it can not be defined as convex or concave.
+            PolygonHolder.ConcaveHandler.add(new Object[]{true}); //if the polygon only has 3 points, it can not be defined as convex or concave. However, for collision detection purposes, it is listed as concave.
             return;
         }
         int Direction = (polygon.xpoints[0] - polygon.xpoints[1] < 0) ? -1 : 1;
@@ -107,18 +107,15 @@ public class PhysicsLoop {
                     : new float[]{polygon.xpoints[i] - polygon.xpoints[i + 1], polygon.ypoints[i] - polygon.ypoints[i + 1]};
             if(ConcaveDebug) {
                 System.out.println(isPolygonConcave);
-                //this doesn't work.
                 System.out.println(MathOperations.VectorDotProduct(MinusOneEdgeVector, new float[]{
                         (float) ((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))),
                         (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90)))
                 }));
-                //this maybe works.
-                g.draw(new Polygon(new int[]{polygon.xpoints[i + 1], (polygon.xpoints[i + 1]) + 4, (int) (Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.xpoints[i + 1]) + 3,
+                g.fill(new Polygon(new int[]{polygon.xpoints[i + 1], (polygon.xpoints[i + 1]) + 4, (int) (Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.xpoints[i + 1]) + 3,
                 (int) Math.round((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90)) + polygon.xpoints[i + 1])},
                 new int[]{polygon.ypoints[i + 1], polygon.ypoints[i + 1], (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.ypoints[i + 1],
                 (int) Math.round((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))) + polygon.ypoints[i + 1]}, 4));
             }
-            //this works.
             if (MathOperations.VectorDotProduct(MinusOneEdgeVector, new float[]{
                     (float) ((polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) - (polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90))),
                     (float) ((polygon.ypoints[i] - polygon.ypoints[i + 1]) * Math.cos(MathOperations.DegreesToRadians(90)) + (polygon.xpoints[i] - polygon.xpoints[i + 1]) * Math.sin(MathOperations.DegreesToRadians(90)))}) < 0) {
@@ -187,7 +184,7 @@ public class PhysicsLoop {
         /*
         the problem with this algorithm is, for example, if you have two very long triangles perpendicular to each other
         intersecting each other at their visual center, this will not detect a collision, since none of the points of either polygons are inside the other polygon.
-        in physics simulation, this fortunately only happens with objects with a very high velocity / with a very low fps.
+        in physics simulation, this fortunately only happens with objects with a very high velocity / with a very low fps. Continuous collision detection resolves these issues (not discrete)
          */
     }
     /*

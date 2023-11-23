@@ -8,7 +8,6 @@ import me.urkkiz.Shapes.PolygonHolder;
 import java.awt.*;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 import java.util.Random;
 
@@ -29,7 +28,6 @@ public class WindowRuntime{
         @Override
         public void keyPressed(KeyEvent e) {
             //cases r prolly better but this will suffice
-            Random random =new Random();
             if(e.getKeyCode()==KeyEvent.VK_RIGHT) PhysicsLoop.Degrees =0.05f;
             if(e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Degrees =-0.05f;
             if(e.getKeyCode()==KeyEvent.VK_W) PhysicsLoop.Movement[1]=-5;
@@ -74,13 +72,10 @@ public class WindowRuntime{
             if(e.getKeyCode()==KeyEvent.VK_SHIFT) IsShiftDown=false;
         }
     };
-    public static MouseWheelListener mListener=new MouseWheelListener() {
-        @Override
-        public void mouseWheelMoved(MouseWheelEvent e) {
-            MainLoop.g.scale(1+(e.getPreciseWheelRotation()*0.01f),1+(e.getPreciseWheelRotation()*0.01f));
-            scale = (float) (1+(e.getPreciseWheelRotation()*0.01f));
-            ((Graphics2D)MainLoop.DrawPanel.getGraphics()).scale(1+(e.getPreciseWheelRotation()*0.01f),1+(e.getPreciseWheelRotation()*0.01f));
-            //Init.DrawPanel.setBounds((int) (Init.WIDTH*(1+(e.getPreciseWheelRotation())*0.01f)), (int) (Init.HEIGHT*(1+(e.getPreciseWheelRotation()*0.01f))));
-        }
+    public static MouseWheelListener mListener= e -> {
+        MainLoop.g.scale(1+(e.getPreciseWheelRotation()*0.01f),1+(e.getPreciseWheelRotation()*0.01f));
+        scale = (float) (1+(e.getPreciseWheelRotation()*0.01f));
+        ((Graphics2D)MainLoop.DrawPanel.getGraphics()).scale(1+(e.getPreciseWheelRotation()*0.01f),1+(e.getPreciseWheelRotation()*0.01f));
+        //Init.DrawPanel.setBounds((int) (Init.WIDTH*(1+(e.getPreciseWheelRotation())*0.01f)), (int) (Init.HEIGHT*(1+(e.getPreciseWheelRotation()*0.01f))));
     };
 }

@@ -159,11 +159,10 @@ public class MainLoop extends Init {
                 case "Sing me a song", "Play for me", "Play me the most beautiful piano piece" -> {
                     try {
                         InputStream audioSrc = Init.class.getClassLoader().getResourceAsStream("ClairDeLune.wav");
+                        assert audioSrc != null;
                         InputStream bufferedIn = new BufferedInputStream(audioSrc);
                         AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(bufferedIn);
                         Clip clip = AudioSystem.getClip();
-                        if(ThePianistInteger==0){
-                        }
                         if (!PouringSoulIntoClairTheLune) {
                             clip.open(audioInputStream);
                             clip.loop(Clip.LOOP_CONTINUOUSLY);
@@ -218,13 +217,12 @@ public class MainLoop extends Init {
                         case "custom" ->{
                             try{
                                 Color color = (new Color(Integer.parseInt(StringUtil.UserLineInput("Type value R")),Integer.parseInt(StringUtil.UserLineInput("Type value G")),Integer.parseInt(StringUtil.UserLineInput("Type value B"))));
-                                if(color.getRed()<256&&color.getGreen()<256&&color.getBlue()<256) {
-                                    DrawPanel.setBackground(color);
-                                    System.out.println("Color set. ("+color+")");
-                                }
-                                else System.out.println("Not a valid color. R, G and B must be in range of 0,255");
+                                DrawPanel.setBackground(color);
+                                System.out.println("Color set. ("+color+")");
                             }catch( NumberFormatException e){
                                 System.out.println("Not an integer.");
+                            }catch(IllegalArgumentException e){
+                                System.out.println("Not a valid color. R, G and B must be in range of 0 and 255");
                             }
                         }
                         default -> System.out.println("No color found with prompt. To set a custom color, type \"color\"");
@@ -232,7 +230,7 @@ public class MainLoop extends Init {
                     if (Objects.equals(DrawPanel.getBackground(), g.getColor()))
                         System.out.println("Warning! Color of background and polygons are the same.");
                     if(!Objects.equals(DrawPanel.getBackground(),c)){
-                        SeeingRainbows =false;
+                        SeeingRainbows = false;
                     }
                 }
                 case "color", "c" -> {
@@ -259,13 +257,12 @@ public class MainLoop extends Init {
                         case "custom" ->{
                             try{
                                 Color color = (new Color(Integer.parseInt(StringUtil.UserLineInput("Type value R")),Integer.parseInt(StringUtil.UserLineInput("Type value G")),Integer.parseInt(StringUtil.UserLineInput("Type value B"))));
-                                if(color.getRed()<256&&color.getGreen()<256&&color.getBlue()<256){
                                     g.setColor(color);
                                     System.out.println("Color set. ("+color+")");
-                                }
-                                else System.out.println("Not a valid color. R, G and B must be in range of 0,255");
                             }catch( NumberFormatException e){
                                 System.out.println("Not an integer.");
+                            }catch(IllegalArgumentException e){
+                                System.out.println("Not a valid color. R, G and B must be in range of 0 and 255");
                             }
                         }
                         default -> System.out.println("No color found with prompt. To set a custom color, type \"color\"");
@@ -278,7 +275,7 @@ public class MainLoop extends Init {
                     }
                 }
                 case "ConcaveDebug", "concave", "GEBUERJEIT" -> {
-                    System.out.println("Toggled concave debug. Type again to toggle... again. Continuing in five seconds.");
+                    System.out.println("Toggled concave debug. Type again to toggle... again. Continuing in five seconds. Remember that three-pointed polygons can't be defined as concave or convex :P");
                     Thread.sleep(5000);
                     DebugLogEnabled = false;
                     PhysicsLoop.ConcaveDebug = !PhysicsLoop.ConcaveDebug;
@@ -304,7 +301,7 @@ public class MainLoop extends Init {
                     DrawIndexes = !DrawIndexes;
                     System.out.println(!DrawIndexes ? "Index drawing disabled" : "Index drawing enabled");
                 }case "rainbow", "lsd" -> {
-                    System.out.println("Warning! This slows down rendering and creates rendering issues.");
+                    System.out.println(!SeeingRainbows ? "Warning! This slows down rendering and creates rendering issues. The command \"Delay\" can help resolve these." : "Disabled.");
                     SeeingRainbows =!SeeingRainbows;
                 }
                 default -> System.out.println("Not a valid input. Try again. Or don't.");
