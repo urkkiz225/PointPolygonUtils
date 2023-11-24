@@ -85,13 +85,12 @@ public class MathOperations {
         return res;
     }
     public static float DeltaPointDirection(int[] pMinusOne, int[] p){
-        return (p[0]!=pMinusOne[0])?((float)p[1]-(float)pMinusOne[1])/((float)p[0]-(float)pMinusOne[0]):0; // a completely vertical line cannot have a rational slope. 0  is returned in this case, because I hate null values.
+        return (p[0]!=pMinusOne[0]) ? ((float)p[1]-(float)pMinusOne[1])/((float)p[0]-(float)pMinusOne[0]):0; // a completely vertical line cannot have a rational slope. 0  is returned in this case, because I hate null values.
     }
     //an alternative to calculate concave polygons with cross product with magnitude (instead of dot product and vector normals, which is currently used.)
     public static int AbstractQuadrantSign(int[] p, int[] pivot) {
         return (p[0]-pivot[0]<0&&p[1]-pivot[1]>0)||(p[0]-pivot[0]>0&&p[1]-pivot[1]>0) ? -1 : 1;
     }
-    //this doesn't work. will work on later. maybe.
     public static float[] CalculateCentroid(Polygon p) {
         double area = CalculateArea(p);
         float[] cxy = new float[2];
@@ -129,7 +128,6 @@ public class MathOperations {
     }
     public static float GetPenetrationDepthOfPointOnPolygon(int[] p, int MasterIndex, Polygon poly){
         //this threw ArrayIndexOutOfBounds() exceptions and then... stopped throwing them from that point forward after a rerun. I never could replicate it. ???
-        //TODO use twoclosestpoints() to check the edge of the closest two points. This is the most likely edge to intersect. but whatever.
         for (int i = 0; i < poly.npoints; i++) {
             Object[] IntersectionData = CheckLineIntersection(new int[][]{new int[]{poly.xpoints[i], poly.ypoints[i]},new int[]{poly.xpoints[(i + 1) % poly.npoints], poly.ypoints[(i + 1) % poly.npoints]}},
                     new int[][]{new int[]{p[0], p[1]}, new int[]{Transform.DeltaPositions.get(MasterIndex)[0][(int) Clamp(i,0, PolygonHolder.shapes.get(MasterIndex).npoints-1)],Transform.DeltaPositions.get(MasterIndex)[1][(int) Clamp(i,0, PolygonHolder.shapes.get(MasterIndex).npoints-1)]}});

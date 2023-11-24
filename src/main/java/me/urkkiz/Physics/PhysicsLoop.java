@@ -87,7 +87,7 @@ public class PhysicsLoop {
                 }
             }
         }
-        if(AmountOfCollision-Collisions.size()==-2)Collisions.remove(Collisions.size()-1);
+        if(AmountOfCollision-Collisions.size()==2)Collisions.remove(Collisions.size()-1);
     }
 
     //I do not dare to question the very gears of the following function; it is a miracle it works in the first place, and miracles are not to be tampered with.

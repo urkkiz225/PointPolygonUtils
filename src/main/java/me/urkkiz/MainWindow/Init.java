@@ -86,7 +86,7 @@ public class Init extends JFrame{
                                 PolygonsSelected.clear();
                                 PolygonsSelected.add(i);
                             }
-                            SelectedPolygon.setText(PolygonsSelected.size()==1 ? "Selected Polygon: "+i:"Selected Polygons: " + PolygonsSelected);
+                            SelectedPolygon.setText(PolygonsSelected.size()==1 ? "Selected Polygon: " + i : "Selected Polygons: " + PolygonsSelected);
                             for (int j = 0; j < PolygonHolder.shapes.get(i).npoints; j++) {
                                 PolygonHolder.shapes.get(i).xpoints[j] += (e.getX() - PrevPosition[0]);
                                 PolygonHolder.shapes.get(i).ypoints[j] += (e.getY() - PrevPosition[1]);

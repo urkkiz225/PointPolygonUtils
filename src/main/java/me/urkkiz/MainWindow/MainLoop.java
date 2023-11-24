@@ -26,9 +26,9 @@ public class MainLoop extends Init {
     public static ArrayList<float[]> PseudoCenters=new ArrayList<>();
     private static TimerTask MainLoop_;
     public static int Period=18;
+
     public static boolean DrawIndexes=false;
     private static boolean PouringSoulIntoClairTheLune=false;
-    private static int ThePianistInteger=0;
     private static boolean SeeingRainbows =false;
 
     public static void Loop() {
@@ -123,8 +123,8 @@ public class MainLoop extends Init {
                 + "He blankly stared the 0-size of the array for many hours, and then promptly fell asleep. Next time, consider pushing a polygon.")
                 +"\n Physics: \n"
                 +"     Collision (SAT): "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConvex(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box a toddler?")
-                +"\n     Collision (repetitive point check): "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConcave(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box a toddler?")
-                +"\n     Is polygon concave: " + PolygonHolder.ConcaveHandler.get(0)[0] + "" + (PolygonHolder.ConcaveHandler.get(0).length==2? (Arrays.toString(((ArrayList<Integer[]>) (PolygonHolder.ConcaveHandler.get(0)[1])).get(0))) : "")
+                +"\n     Collision (repetitive point check): "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConcave(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box as a toddler?")
+                +"\n     Is polygon concave: " + PolygonHolder.ConcaveHandler.get(0)[0] + " " + (PolygonHolder.ConcaveHandler.get(0).length==2? (Arrays.toString(((ArrayList<Integer[]>) (PolygonHolder.ConcaveHandler.get(0)[1])).get(0))) : "")
                 +"\n Transform: \n"+"     Accurate cumulative float overflow: "+Arrays.deepToString(Transform.AccurateCumulativeDoubleOverFlows)
                 +"\n\n\n");
     }
@@ -133,15 +133,15 @@ public class MainLoop extends Init {
         DrawPanel.setBackground(new Color((int) (127*(Math.sin(-TimeManager.MasterTime)+1)), (int) (127*(Math.sin(-TimeManager.MasterTime*0.25f)+1)), (int) (127*(Math.sin(-TimeManager.MasterTime*0.6)+1))));
     }
     public static void InputCases() throws InterruptedException{
+        PhysicsLoop.Movement=new float[]{0,0};
+        PhysicsLoop.Degrees=0;
         if(PolygonHolder.shapes.size()!=0) {
-            PhysicsLoop.Movement=new float[]{0,0};
-            PhysicsLoop.Degrees=0;
             System.out.println("Awaiting new input line...");
             String UserInput = StringUtil.UserLineInput("");
             //checking is case-sensitive purely due to comedic purposes.
             switch (UserInput) {
                 case "toggle the got damn debugs!", "debug", "enable debug plz", "TOGGLE THE FUCKING DEBUG YOU FUCKING IDIOTIC MACHINE!!! RAAAHHH!", "Hello, good sir. Do you mind apprising me with all the knowledge of mankind?", "give me debug. give it to me!", "beep boop. beep?", "Those who are wayward in spirit will gain understanding; those who complain will accept instruction." -> {
-                    System.out.println("You have enabled debug logs. It can not be turned off. Have fun.");
+                        System.out.println("You have enabled debug logs. It can not be turned off. Have fun.");
                     for (int i = 8; i != -1; i--) {
                         System.out.print("\rApproaching hell. ETA: " + i + "s...\r");
                         Thread.sleep(1250);
@@ -171,6 +171,8 @@ public class MainLoop extends Init {
                         } else {
                             clip.stop();
                             clip.close();
+                            bufferedIn.close();
+                            audioInputStream.close();
                             System.out.println("Did you just... Interrupt me?");
                             Thread.sleep(4000);
                             System.out.println("This is the rudest thing that has happened in many centuries. No on has dared to disrespect me like this.");
@@ -180,7 +182,7 @@ public class MainLoop extends Init {
                                 Thread.sleep(4000);
                                 System.out.println("...");
                             }
-                            System.out.println("Good bye. May your woes be many, and your days few.");
+                            System.out.println("Good bye.");
                             for (int i = 3; i != -1; i--) {
                                 System.out.print("Exiting in " + i + "s...\r");
                                 Thread.sleep(1500);
@@ -291,7 +293,7 @@ public class MainLoop extends Init {
                             Period = Integer.parseInt(s);
                             MainLoop_.cancel();
                             Loop();
-                        } else System.out.println("Delay can not be 0");
+                        } else System.out.println("Delay can't be 0");
                     } catch (NumberFormatException e) {
                         System.out.println("That's not a valid integer. Consider taking your first-grade math lessons again. Continuing in five seconds...");
                         Thread.sleep(5000);

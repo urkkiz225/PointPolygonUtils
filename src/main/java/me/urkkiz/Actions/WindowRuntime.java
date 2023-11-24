@@ -5,11 +5,10 @@ import me.urkkiz.MainWindow.MainLoop;
 import me.urkkiz.Physics.PhysicsLoop;
 import me.urkkiz.Shapes.PolygonHolder;
 
-import java.awt.*;
+import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseWheelListener;
-import java.util.Random;
 
 public class WindowRuntime{
     public static boolean IsShiftDown=false;
@@ -28,8 +27,8 @@ public class WindowRuntime{
         @Override
         public void keyPressed(KeyEvent e) {
             //cases r prolly better but this will suffice
-            if(e.getKeyCode()==KeyEvent.VK_RIGHT) PhysicsLoop.Degrees =0.05f;
-            if(e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Degrees =-0.05f;
+            if(e.getKeyCode()==KeyEvent.VK_RIGHT) PhysicsLoop.Degrees = 0.05f;
+            if(e.getKeyCode()==KeyEvent.VK_LEFT) PhysicsLoop.Degrees = -0.05f;
             if(e.getKeyCode()==KeyEvent.VK_W) PhysicsLoop.Movement[1]=-5;
             if(e.getKeyCode()==KeyEvent.VK_S) PhysicsLoop.Movement[1]=5f;
             if(e.getKeyCode()==KeyEvent.VK_A) PhysicsLoop.Movement[0]=-5f;
@@ -53,8 +52,8 @@ public class WindowRuntime{
             if(e.getKeyCode()==KeyEvent.VK_P) {
                 try {
                     System.out.print("\r");
-                    PhysicsLoop.ConcaveDebug=false;
-                    MainLoop.DebugLogEnabled=false;
+                    PhysicsLoop.ConcaveDebug = false;
+                    MainLoop.DebugLogEnabled = false;
                     MainLoop.InputCases();
                 } catch (Exception ex) {
                     throw new RuntimeException(ex);
