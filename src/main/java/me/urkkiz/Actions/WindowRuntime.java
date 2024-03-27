@@ -16,7 +16,7 @@ public class WindowRuntime{
     //this is a prime example of a forgotten class...
     public static void GeneralInformation(boolean Toggle, String SetText){
         Init.GeneralInfo.setVisible(Toggle);
-        if(SetText.length()!=0) Init.GeneralInfo.setText(SetText);
+        if(!SetText.isEmpty()) Init.GeneralInfo.setText(SetText);
     }
     //usage of method is self-evident.
     public static KeyListener listener=new KeyListener() {

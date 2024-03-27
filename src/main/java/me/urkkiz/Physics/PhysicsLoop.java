@@ -15,7 +15,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class PhysicsLoop {
-    public static float Degrees =0;
+    public static float Degrees = 0;
     public static boolean ConcaveDebug=false;
     public static float[] Movement = new float[2];
     public static int[] PrevMousePosition=new int[]{MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x,MouseInfo.getPointerInfo().getLocation().y-frame.getLocationOnScreen().y};

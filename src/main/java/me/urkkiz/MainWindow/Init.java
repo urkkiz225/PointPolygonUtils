@@ -47,7 +47,7 @@ public class Init extends JFrame{
         label.setBounds(frame.getWidth(),frame.getHeight(),300,100);
         label.setFont(new Font(null,Font.BOLD,25));
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setTitle(new String[]{"polygon point epic application","\"Polygon polygon, polygon!\" -Polygon", "The usurper", "Do these two lines really intersect?", "I love concave polygons!!1!!","Minecraft 1.8.9", "ULTRAKILL", "bind o \"explode\"","the idiocy", "nice day today"}[random.nextInt(0,10)]);
+        frame.setTitle(new String[]{"polygon point epic application","\"Polygon polygon, polygon!\" -Polygon", "The usurper", "Do these two lines really intersect?", "I love concave polygons!!1!!","Minecraft 1.8.9", "ULTRAKILL", "bind o \"explode\"","the idiocy", "nice day today", "helltale", "slowcrunch"}[random.nextInt(0,12)]);
         frame.setSize(Math.abs(Toolkit.getDefaultToolkit().getScreenSize().width-100),Math.abs(Toolkit.getDefaultToolkit().getScreenSize().height-100));
         DrawPanel.setSize(frame.getWidth(),frame.getHeight());
         frame.add(GeneralInfo);

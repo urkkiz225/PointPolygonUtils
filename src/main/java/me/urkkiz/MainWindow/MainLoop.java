@@ -62,7 +62,7 @@ public class MainLoop extends Init {
         //drawing of polygon editing
         if (Init.GeneralInfo.isVisible()) {
             g.draw(new Rectangle2D.Float(MouseInfo.getPointerInfo().getLocation().x - frame.getLocationOnScreen().x - 5, MouseInfo.getPointerInfo().getLocation().y - frame.getLocationOnScreen().y - 5, 10, 10));
-            if (PolygonHolder.TempPolygon.size() != 0) {
+            if (!PolygonHolder.TempPolygon.isEmpty()) {
                 for (int j = 0; j < PolygonHolder.TempPolygon.size() - 1; j++) {
                     PolygonHolder.TempPolygon.set(PolygonHolder.TempPolygon.size() - 1, new int[]{MouseInfo.getPointerInfo().getLocation().x - frame.getLocationOnScreen().x, MouseInfo.getPointerInfo().getLocation().y - frame.getLocationOnScreen().y});
                     Line2D TLN = new Line2D.Float(PolygonHolder.TempPolygon.get(j)[0], PolygonHolder.TempPolygon.get(j)[1], PolygonHolder.TempPolygon.get(j + 1)[0], PolygonHolder.TempPolygon.get(j + 1)[1]);
@@ -96,7 +96,7 @@ public class MainLoop extends Init {
                 }
             }
         }
-        if (PolygonHolder.TempPolygon.size()==0&&GeneralInfo.isVisible()){
+        if (PolygonHolder.TempPolygon.isEmpty() && GeneralInfo.isVisible()){
             g.draw(new Rectangle2D.Float(MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x-5,MouseInfo.getPointerInfo().getLocation().y-frame.getLocationOnScreen().y-5,10,10));
         }
     }
@@ -119,7 +119,7 @@ public class MainLoop extends Init {
                 +         "\n    Closest two points: " + (PolygonHolder.shapes.size()>1?Arrays.deepToString(MathOperations.ClosestTwoPoints(new int[]{PolygonHolder.shapes.get(0).xpoints[0],PolygonHolder.shapes.get(0).xpoints[0]},points)) : "Not enough polygons to eval intersection")
                 + "\n Polygon holder: \n" +
                     "   Base Polygons: " + PolygonHolder.BasePolygons.size()
-                +       "\n   First shape stats: "+(PolygonHolder.shapes.size()!=0?Arrays.toString(PolygonHolder.shapes.get(0).xpoints)+", "+Arrays.toString(PolygonHolder.shapes.get(0).ypoints)+", "+PolygonHolder.shapes.get(0).npoints:"And yet, the polygon array was empty. He stood there, unaware of what do make of his current situation. "
+                +       "\n   First shape stats: "+(!PolygonHolder.shapes.isEmpty() ?Arrays.toString(PolygonHolder.shapes.get(0).xpoints)+", "+Arrays.toString(PolygonHolder.shapes.get(0).ypoints)+", "+PolygonHolder.shapes.get(0).npoints:"And yet, the polygon array was empty. He stood there, unaware of what do make of his current situation. "
                 + "He blankly stared the 0-size of the array for many hours, and then promptly fell asleep. Next time, consider pushing a polygon.")
                 +"\n Physics: \n"
                 +"     Collision (SAT): "+(PolygonHolder.shapes.size()>1?PhysicsLoop.CollisionCheckConvex(PolygonHolder.shapes.get(0),PolygonHolder.shapes.get(1)):"At least 2 polygons needed to evaluate collision. Didn't you play with a shape sorter box a toddler?")
@@ -135,7 +135,7 @@ public class MainLoop extends Init {
     public static void InputCases() throws InterruptedException{
         PhysicsLoop.Movement=new float[]{0,0};
         PhysicsLoop.Degrees=0;
-        if(PolygonHolder.shapes.size()!=0) {
+        if(!PolygonHolder.shapes.isEmpty()) {
             System.out.println("Awaiting new input line...");
             String UserInput = StringUtil.UserLineInput("");
             //checking is case-sensitive purely due to comedic purposes.
@@ -227,6 +227,15 @@ public class MainLoop extends Init {
                                 System.out.println("Not a valid color. R, G and B must be in range of 0 and 255");
                             }
                         }
+                        case "random", "rand", "rnd" -> {
+                            try {
+                                Color color =  new Color(random.nextInt(0,255), random.nextInt(0,255), random.nextInt(0,255));
+                                DrawPanel.setBackground(color);
+                                System.out.println("Random background color set. (" + color + ")");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                         default -> System.out.println("No color found with prompt. To set a custom color, type \"color\"");
                     }
                     if (Objects.equals(DrawPanel.getBackground(), g.getColor()))
@@ -267,6 +276,15 @@ public class MainLoop extends Init {
                                 System.out.println("Not a valid color. R, G and B must be in range of 0 and 255");
                             }
                         }
+                        case "random", "rand", "rnd" -> {
+                            try {
+                                Color color =  new Color(random.nextInt(0,255), random.nextInt(0,255), random.nextInt(0,255));
+                                g.setColor(color);
+                                System.out.println("Random color set. (" + color + ")");
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
                         default -> System.out.println("No color found with prompt. To set a custom color, type \"color\"");
                     }
                     DrawPanel.update(DrawPanel.getGraphics());
@@ -274,6 +292,18 @@ public class MainLoop extends Init {
                         System.out.println("Warning! Color of background and polygons are the same.");
                     if(!Objects.equals(g.getColor(),c)){
                         SeeingRainbows =false;
+                    }
+                }
+                case "randomcolors", "randomtheme", "rndcolors", "rndtheme" -> {
+                    try {
+                        Color PrimaryColor =  new Color(random.nextInt(0,255), random.nextInt(0,255), random.nextInt(0,255));
+                        Color BackgroundColor =  new Color(random.nextInt(0,255), random.nextInt(0,255), random.nextInt(0,255));
+                        g.setColor(PrimaryColor);
+                        DrawPanel.setBackground(BackgroundColor);
+                        System.out.println("Random primary color set. (" + PrimaryColor + ")");
+                        System.out.println("Random background color set. (" + BackgroundColor + ")");
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
                 }
                 case "ConcaveDebug", "concave", "GEBUERJEIT" -> {
@@ -305,6 +335,38 @@ public class MainLoop extends Init {
                 }case "rainbow", "lsd" -> {
                     System.out.println(!SeeingRainbows ? "Warning! This slows down rendering and creates rendering issues. The command \"Delay\" can help resolve these." : "Disabled.");
                     SeeingRainbows =!SeeingRainbows;
+                }
+                case "rect", "rc", "rectangle" -> {
+                    System.out.println("Please enter width for new rect or type \"random\"");
+                    String s = StringUtil.UserLineInput("");
+                    if(s.equals("random")||s.equals("rand")||s.equals("rnd")){
+                        int[] Pivot=new int[]{random.nextInt(0, DrawPanel.getWidth()),random.nextInt(0, DrawPanel.getHeight())};
+                        int Width = random.nextInt(0,100);
+                        int Height = random.nextInt(0,100);
+                        PolygonHolder.PushPolygon(new int[]{Pivot[0], Pivot[0]+Width, Pivot[0]+Width, Pivot[0]}, new int[]{Pivot[1], Pivot[1], Pivot[1]+Height, Pivot[1]+Height});
+                        PhysicsLoop.IsPolygonConcave(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1));
+                        TimeManager.Timers.add(0F);
+                        PolygonHolder.CompilePolygons();
+                        if(StringUtil.UserYNInput("Rotate polygon a random amount?")) Transform.RotatePolygon(PolygonHolder.shapes.size()-1,(float) Math.toRadians(random.nextInt(0, 360)),PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1)));
+                        System.out.println(new String[]{"Good luck finding the polygon that just got created", "Where's poly the polygon?"}[random.nextInt(0,1)]);
+                    }else{
+                        try{
+                            int Width = Integer.parseInt(s);
+                            int Height=Integer.parseInt(StringUtil.UserLineInput("Please enter height"));
+                            int[] Pivot=new int[]{Integer.parseInt(StringUtil.UserLineInput("Please enter location x")), Integer.parseInt(StringUtil.UserLineInput("Please enter location y!"))};
+                            float Rotation = Float.parseFloat(StringUtil.UserLineInput("Please enter initial rotation"));
+                            Transform.DeltaPositions.add(new int[2][4]);
+                            PolygonHolder.PushPolygon(new int[]{(Pivot[0]-Width) / 2, (Pivot[0]-Width) / 2 + Width, (Pivot[0]-Width) / 2 + Width,(Pivot[0]-Width) / 2}, new int[]{(Pivot[1]-Height)/2, (Pivot[1]-Height)/2, (Pivot[1]-Height)/2 + Height, (Pivot[1]-Height)/2+Height});
+                            PhysicsLoop.IsPolygonConcave(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1));
+                            PseudoCenters.add(PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1)));
+                            TimeManager.Timers.add(0F);
+                            PolygonHolder.CompilePolygons();
+                            Transform.RotatePolygon(PolygonHolder.shapes.size()-1, (float) Math.toRadians(Rotation), PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1)));
+                            System.out.println(new String[]{"Good luck finding the polygon that just got created", "Where's poly the polygon?"}[random.nextInt(0,1)]);
+                        }catch(NumberFormatException e){
+                            System.out.println("Not a valid number!");
+                        }
+                    }
                 }
                 default -> System.out.println("Not a valid input. Try again. Or don't.");
             }
