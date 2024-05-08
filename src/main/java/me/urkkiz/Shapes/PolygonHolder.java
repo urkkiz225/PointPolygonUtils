@@ -1,5 +1,7 @@
 package me.urkkiz.Shapes;
 
+import me.urkkiz.MainWindow.MainLoop;
+import me.urkkiz.Physics.PhysicsLoop;
 import me.urkkiz.util.MathOperations;
 
 import java.awt.*;
@@ -13,6 +15,7 @@ public class PolygonHolder {
     public static ArrayList<Object[]> ConcaveHandler=new ArrayList<>();
     public static void PushPolygon(int[] verticesX, int[] verticesY) {
         shapes.add(new Polygon(verticesX,verticesY, verticesX.length));
+        MainLoop.PseudoCenters.add(PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1)));
     }
     public static void CompilePolygons(){
         //do not runtime modify BasePolygons

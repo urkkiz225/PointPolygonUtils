@@ -47,4 +47,18 @@ public class Transform {
             PolygonHolder.shapes.get(PolygonIndex).ypoints[i] = (int) (Math.round(xy[1])) + (int)xyCumulativeOverFlow[1];
         }
     }
+    public static void ScalePolygon(int PolygonIndex, float Amount) {
+        float[] MidPoint = PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonIndex));
+        for (int i = 0; i < PolygonHolder.shapes.get(PolygonIndex).npoints; i++) {
+            PolygonHolder.shapes.get(PolygonIndex).xpoints[i] = Math.round((float)(PolygonHolder.shapes.get(PolygonIndex).xpoints[i]) * Amount + MidPoint[0]*(1-Amount));
+            PolygonHolder.shapes.get(PolygonIndex).ypoints[i] = Math.round((float)(PolygonHolder.shapes.get(PolygonIndex).ypoints[i]) * Amount + MidPoint[1]*(1-Amount));
+        }
+    }
+    public static void ScalePolygon(int PolygonIndex, float[] Amount) {
+        float[] MidPoint = PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonIndex));
+        for (int i = 0; i < PolygonHolder.shapes.get(PolygonIndex).npoints; i++) {
+            PolygonHolder.shapes.get(PolygonIndex).xpoints[i] = Math.round((float)(PolygonHolder.shapes.get(PolygonIndex).xpoints[i]) * Amount[0] + MidPoint[0]*(1-Amount[0]));
+            PolygonHolder.shapes.get(PolygonIndex).ypoints[i] = Math.round((float)(PolygonHolder.shapes.get(PolygonIndex).ypoints[i]) * Amount[1] + MidPoint[1]*(1-(Amount[0])));
+        }
+    }
 }

@@ -96,8 +96,8 @@ public class MathOperations {
         float[] cxy = new float[2];
         for (int i = 0; i < p.npoints; i++) {
             double term = Math.abs(p.xpoints[i] * p.ypoints[(i + 1) % p.npoints] - p.xpoints[(i + 1) % p.npoints] * p.ypoints[i]); // Take absolute value
-            cxy[0] += (p.xpoints[i] + p.xpoints[(i + 1) % p.npoints]) * term;
-            cxy[1] += (p.ypoints[i] + p.ypoints[(i + 1) % p.npoints]) * term;
+            cxy[0] += (float) ((p.xpoints[i] + p.xpoints[(i + 1) % p.npoints]) * term);
+            cxy[1] += (float) ((p.ypoints[i] + p.ypoints[(i + 1) % p.npoints]) * term);
         }
         cxy[0] /= (6 * area);
         cxy[1] /= (6 * area);

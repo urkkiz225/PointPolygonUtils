@@ -7,6 +7,7 @@ import me.urkkiz.util.StringUtil;
 import me.urkkiz.util.TimeManager;
 import me.urkkiz.util.Transform;
 
+import javax.print.DocFlavor;
 import javax.sound.sampled.*;
 import java.awt.*;
 import java.awt.geom.Line2D;
@@ -52,7 +53,7 @@ public class MainLoop extends Init {
     public static void Render() {
         DrawPanel.paintAll(g);
         if(SeeingRainbows) RainbowsAndCupcakes();
-        for (int i=0; i< PolygonHolder.shapes.size();i++) {
+        for (int i=0; i < PolygonHolder.shapes.size(); i++) {
             g.fill(PolygonHolder.shapes.get(i));
             if(DrawIndexes){
                 PseudoCenters.set(i,PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(i)));
@@ -86,7 +87,6 @@ public class MainLoop extends Init {
                     Transform.DeltaPositions.add(new int[2][Coordinates[0].length - 1]);
                     PolygonHolder.PushPolygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length - 1), Arrays.copyOf(Coordinates[1], Coordinates[1].length - 1)); //using Arrays.copyOf as a hotfix for too many points. might fix later.
                     PhysicsLoop.IsPolygonConcave(new Polygon(Arrays.copyOf(Coordinates[0], Coordinates[0].length - 1), Arrays.copyOf(Coordinates[1], Coordinates[1].length - 1), Coordinates[0].length - 1));
-                    PseudoCenters.add(PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1)));
                     TimeManager.Timers.add(0F);
                     PolygonHolder.CompilePolygons();
                     PolygonHolder.TempPolygon.clear();
@@ -348,24 +348,47 @@ public class MainLoop extends Init {
                         TimeManager.Timers.add(0F);
                         PolygonHolder.CompilePolygons();
                         if(StringUtil.UserYNInput("Rotate polygon a random amount?")) Transform.RotatePolygon(PolygonHolder.shapes.size()-1,(float) Math.toRadians(random.nextInt(0, 360)),PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1)));
-                        System.out.println(new String[]{"Good luck finding the polygon that just got created", "Where's poly the polygon?"}[random.nextInt(0,1)]);
+                        if(StringUtil.UserYNInput("Scale polygon a random amount (0.1-10?)")) Transform.ScalePolygon(PolygonHolder.shapes.size()-1, random.nextFloat(0.1f,10));
+                        System.out.println(new String[]{"Good luck finding the polygon that just got created!", "\"glblglblgoo\""}[random.nextInt(0,1)]);
                     }else{
                         try{
                             int Width = Integer.parseInt(s);
                             int Height=Integer.parseInt(StringUtil.UserLineInput("Please enter height"));
                             int[] Pivot=new int[]{Integer.parseInt(StringUtil.UserLineInput("Please enter location x")), Integer.parseInt(StringUtil.UserLineInput("Please enter location y!"))};
                             float Rotation = Float.parseFloat(StringUtil.UserLineInput("Please enter initial rotation"));
+                            float Scale = Float.parseFloat(StringUtil.UserLineInput("Please enter initial scale"));
                             Transform.DeltaPositions.add(new int[2][4]);
                             PolygonHolder.PushPolygon(new int[]{(Pivot[0]-Width) / 2, (Pivot[0]-Width) / 2 + Width, (Pivot[0]-Width) / 2 + Width,(Pivot[0]-Width) / 2}, new int[]{(Pivot[1]-Height)/2, (Pivot[1]-Height)/2, (Pivot[1]-Height)/2 + Height, (Pivot[1]-Height)/2+Height});
                             PhysicsLoop.IsPolygonConcave(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1));
-                            PseudoCenters.add(PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1)));
                             TimeManager.Timers.add(0F);
                             PolygonHolder.CompilePolygons();
                             Transform.RotatePolygon(PolygonHolder.shapes.size()-1, (float) Math.toRadians(Rotation), PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonHolder.shapes.size()-1)));
-                            System.out.println(new String[]{"Good luck finding the polygon that just got created", "Where's poly the polygon?"}[random.nextInt(0,1)]);
+                            Transform.ScalePolygon(PolygonHolder.shapes.size()-1, Scale);
+                            System.out.println(new String[]{"Good luck finding the polygon that just got created", "waaaahhh!!!"}[random.nextInt(0,1)]);
                         }catch(NumberFormatException e){
                             System.out.println("Not a valid number!");
                         }
+                    }
+                }case "scale" -> {
+                    try{
+                        if(StringUtil.UserYNInput("Scale a uniform amount?")){
+                            int PolygonIndex = Integer.parseInt(StringUtil.UserLineInput("Please enter polygon index to scale. You may need to toggle showing polygon indexes via the command e.g. \"index\""));
+                            if(PolygonIndex>=PolygonHolder.shapes.size()-1){
+                                System.out.println("Polygon index is too large!");
+                                break;
+                            }
+                            float newScale = Float.parseFloat(StringUtil.UserLineInput("Please enter new scale")); //TODO 30/4/2024 float values for scales not working. fix got damnit
+                            Transform.ScalePolygon(PolygonIndex, newScale);
+                        }else {
+                            int PolygonIndex = Integer.parseInt(StringUtil.UserLineInput("Please enter polygon index to scale. You may need to toggle showing polygon indexes via the command e.g. \"index\""));
+                            if(PolygonIndex>=PolygonHolder.shapes.size()){
+                                System.out.println("Polygon index is too large!");
+                                break;
+                            }
+                            Transform.ScalePolygon(PolygonIndex, new float[]{Float.parseFloat(StringUtil.UserLineInput("Please enter width x")), Float.parseFloat(StringUtil.UserLineInput("Please enter width y"))});
+                        }
+                    }catch(NumberFormatException e){
+                        System.out.println("Not a valid input!");
                     }
                 }
                 default -> System.out.println("Not a valid input. Try again. Or don't.");

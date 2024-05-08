@@ -36,7 +36,7 @@ public class PhysicsLoop {
                 }
             }
             CheckAllCollisions(i);
-            Init.AmountOfCollisions.setText(Collisions.size()!=0?"Amount of collisions:"+Collisions.size():"Amount of collisions: 0");
+            Init.AmountOfCollisions.setText(!Collisions.isEmpty() ?"Amount of collisions:"+Collisions.size():"Amount of collisions: 0");
         }
         PrevMousePosition=new int[]{MouseInfo.getPointerInfo().getLocation().x-frame.getLocationOnScreen().x,MouseInfo.getPointerInfo().getLocation().y-frame.getLocationOnScreen().y};
     }
