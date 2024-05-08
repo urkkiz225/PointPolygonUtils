@@ -58,7 +58,7 @@ public class Transform {
         float[] MidPoint = PhysicsLoop.CalculatePseudoCenter(PolygonHolder.shapes.get(PolygonIndex));
         for (int i = 0; i < PolygonHolder.shapes.get(PolygonIndex).npoints; i++) {
             PolygonHolder.shapes.get(PolygonIndex).xpoints[i] = Math.round((float)(PolygonHolder.shapes.get(PolygonIndex).xpoints[i]) * Amount[0] + MidPoint[0]*(1-Amount[0]));
-            PolygonHolder.shapes.get(PolygonIndex).ypoints[i] = Math.round((float)(PolygonHolder.shapes.get(PolygonIndex).ypoints[i]) * Amount[1] + MidPoint[1]*(1-(Amount[0])));
+            PolygonHolder.shapes.get(PolygonIndex).ypoints[i] = Math.round((float)(PolygonHolder.shapes.get(PolygonIndex).ypoints[i]) * Amount[1] + MidPoint[1]*(1-(Amount[1])));
         }
     }
 }
